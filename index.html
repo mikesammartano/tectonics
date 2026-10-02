@@ -2673,7 +2673,7 @@ function labelDefs(Fr) {
     const col = Fr.scn === 'collision';
     face('plateL', col ? 'Colliding continent' : 'Oceanic plate', col ? 'Continente que choca' : 'Placa oceánica', -3.9, 6, 9, true);
     face('plateR', col ? 'Overriding continent' : 'Overriding plate', col ? 'Continente superior' : 'Placa superior', Fr.TR + 4.7, 1, 4, true);
-    top('trench', 'Trench', 'Fosa', Fr.TR + .05, zc - .1, -.05);
+    { let bx = Fr.TR, by = 9; for (let x = Fr.TR - .8; x <= Fr.TR + .8; x += .04) { Fr.col(x, zc, Fr, lc); if (lc.B[1] < by) { by = lc.B[1]; bx = x; } } out.push({ id: 'trench', text: L('Trench', 'Fosa'), x: bx, y: by + .14, z: zc + .02, n: 'f' }); }
     if (!col || Fr.thick < .3) top('arc', Fr.opOcean ? 'Island arc' : 'Volcanic arc', Fr.opOcean ? 'Arco de islas' : 'Arco volcánico', Fr.xArc, zc - .2, .38 * (Fr.growth || 1) + .1);
     face('wedge', 'Mantle wedge', 'Cuña del manto', Fr.xArc + .85, 5, 5);
     face('slab', col ? 'Sinking slab' : 'Subducting slab', col ? 'Placa que se hunde' : 'Placa subducida', Fr.TR + 2.5, 6, 9, true);
