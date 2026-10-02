@@ -1197,6 +1197,7 @@ body.embed .embed-only{display:inline-flex!important}
             <div class="stats" id="abStats"></div>
             <p id="abText"></p>
             <ul class="notice" id="abNotice"></ul>
+            <p class="hint" id="abNote"></p>
           </div>
           <div class="about__side">
             <span class="t-eyebrow">Stages</span>
@@ -1258,7 +1259,7 @@ body.embed .embed-only{display:inline-flex!important}
         <div class="group__head"><span class="t-eyebrow">Slice and relief</span></div>
         <div id="sCut"></div>
         <div id="sExag"></div>
-        <p class="hint">Slide the cut to move the cross-section through the block. Relief is stretched so mountains and trenches show; the deep layers stay true to scale.</p>
+        <p class="hint">Slide the cut to move the cross-section through the block. Relief is stretched so mountains and trenches show; the deep layers keep their true scale, with crust drawn a little thicker than real.</p>
       </div>
       <div class="group">
         <div class="group__head"><span class="t-eyebrow">Show</span></div>
@@ -1579,7 +1580,7 @@ const S = {
   show: { labels: true, arrows: true, quakes: true, magma: true, flow: false, water: true, lines: true, grid: false, stripes: true, shake: true, plates: false },
   p: DEFAULTS()
 };
-const RATE_RANGE = { subduction: [1, 10], collision: [1, 10], divergent: [1, 8], transform: [1, 8], hotspot: [1, 12] };
+const RATE_RANGE = { subduction: [1, 10], collision: [1, 10], divergent: [.5, 16], transform: [.5, 8], hotspot: [1, 12] };
 
 // colours of the rock layers (content colour: warm crust, slate ocean floor, green mantle, orange asthenosphere)
 const PAL = {
@@ -1596,12 +1597,12 @@ const LAYERS = {
     { k: 'opUp', name: 'Upper crust', es: 'Corteza superior', sl: 2, bands: true, dens: 2.7, crust: 1 },
     { k: 'opLow', name: 'Lower crust', es: 'Corteza inferior', sl: 2, dens: 2.9, crust: 1 },
     { k: 'opLith', name: 'Lithospheric mantle', es: 'Manto litosférico', sl: 3, dens: 3.3 },
-    { k: 'wedge', name: 'Mantle wedge', es: 'Cuña del manto', sl: 7, grad: true, dens: 3.3 },
+    { k: 'wedge', name: 'Mantle wedge', es: 'Cuña del manto', sl: 7, grad: true, dens: 3.3, note: 'Water from the slab makes it melt in places', notees: 'El agua de la placa hace que se funda en algunos sitios' },
     { k: 'slSed', name: 'Ocean-floor sediment', es: 'Sedimento del fondo oceánico', sl: 1, dens: 2.0, crust: 1 },
     { k: 'slUp', name: 'Oceanic crust (basalt)', es: 'Corteza oceánica (basalto)', sl: 2, bands: true, dens: 2.9, crust: 1 },
     { k: 'slLow', name: 'Oceanic crust (gabbro)', es: 'Corteza oceánica (gabro)', sl: 2, dens: 3.0, crust: 1 },
     { k: 'slLith', name: 'Lithospheric mantle', es: 'Manto litosférico', sl: 3, dens: 3.3 },
-    { k: 'asth', name: 'Asthenosphere', es: 'Astenosfera', sl: 10, grad: true, dens: 3.3 }
+    { k: 'asth', name: 'Asthenosphere', es: 'Astenosfera', sl: 10, grad: true, dens: 3.3, note: 'Hot, mostly solid rock that flows very slowly', notees: 'Roca caliente, casi toda sólida, que fluye muy despacio' }
   ],
   div: [
     { k: 'water', name: 'Ocean water', es: 'Agua del océano', water: true, sl: 1, dens: 1.03 },
@@ -1644,7 +1645,7 @@ function makeFrame(scn = S.scn, t = S.t) {
     if (col) { F.am = F.TR - q.ocean + F.d; F.U = Math.max(0, F.d - q.ocean); F.thick = 1 - Math.exp(-F.U / 4.5); dip *= 1 - .72 * sstep(0, 5, F.U); }
     else { F.am = -99; F.U = 0; F.thick = 0; }
     F.dip = dip; F.slopeM = Math.tan(dip * Math.PI / 180) * KMX / KMY; F.secM = Math.sqrt(1 + F.slopeM * F.slopeM);
-    F.slabLith = .5 + .5 * clamp(((q.age == null ? 80 : q.age) - 20) / 120, 0, 1);
+    F.slabLith = Math.max(.1, (Math.min(100, 10 * Math.sqrt(q.age == null ? 80 : q.age)) - 11) / KMY);
     F.yFloor = Yk(-4.2); F.yShelf = Yk(.5); F.yBulge = Yk(.5); F.yTrench = Yk(-2.2);
     F.growth = .4 + .6 * sstep(0, 1, t);
     F.andes = col ? 1.2 * (1 - F.thick) : 2.8 * F.growth;
@@ -1692,12 +1693,12 @@ function makeFrame(scn = S.scn, t = S.t) {
 const newCol = () => ({ B: new Float32Array(12), k0: 1, g: 0, fc: 0, along: 0, srcX: 0, srcZ: 0, stripe: 0, amt: 0, age: 0, z: 0, cf: 0, u: 0 });
 
 // ---------------- subduction and collision ----------------
-const OPC = { sed: .06, up: .22, low: .22, lith: .9 }, OPO = { sed: .04, up: .08, low: .08, lith: .5 };
+const OPC = { sed: .06, up: .2, low: .18, lith: .8 }, OPO = { sed: .04, up: .08, low: .08, lith: .5 };
 function opSurf(x, z, u, F) {
   let hk;
   if (F.opOcean) hk = -6 + 3.4 * sstep(0, 1.1, u);
   else {
-    hk = -6 + 6.4 * sstep(0, 1.2, u) + F.andes * gauss((u - 2.6) / 1.5);
+    hk = lerp(lerp(-6, .9, F.cont ? sstep(0, .45, F.thick) : 0), .4, sstep(0, 1.2, u)) + F.andes * gauss((u - 2.6) / 1.5);
     if (F.cont) {
       const prof = sstep(F.TR, F.TR + 1.2, x) * (1 - sstep(F.TR + 2.6 + .5 * F.U, F.TR + 4.2 + .5 * F.U, x));
       hk += 5.2 * F.thick * prof * (.55 + .45 * gauss((x - (F.TR + 1.3)) / 1.3));
@@ -1720,18 +1721,18 @@ function convCol(x, z, F, o) {
   const along = x + (F.secM - 1) * bend;
   const fc = F.cont ? 1 - sstep(F.am - .35, F.am + .35, along) : 0;
   const slope = F.slopeM * sg, fac = Math.sqrt(1 + slope * slope);
-  const ys = lerp(F.yFloor, F.yShelf, fc) + F.yBulge * gauss((u + 1.1) / .5) * (1 - fc) + F.yTrench * gauss((u + .05) / .5) * (1 - fc * .6) - F.slopeM * bend;
+  const ys = lerp(F.yFloor, F.yShelf, fc) + F.yBulge * gauss((u + 1.1) / .5) * (1 - fc) + F.yTrench * gauss((u + .05) / .5) * (1 - fc * .6) * (1 - (F.cont ? sstep(0, .45, F.thick) : 0)) - F.slopeM * bend;
   const s = sstep(0, .9, u), op = F.opOcean ? OPO : OPC;
   const fold = F.cont ? foldAt(x, F) : 0;
   let g = Math.max(ys + s * (opSurf(x, z, u, F) - ys) + fold * .5 * s, ys);
-  const root = F.cont ? .5 * F.thick * sstep(F.TR, F.TR + 1.4, x) * (1 - sstep(F.TR + 3 + .5 * F.U, F.TR + 5 + .5 * F.U, x)) : 0;
+  const root = F.cont ? .6 * F.thick * sstep(F.TR, F.TR + 1.4, x) * (1 - sstep(F.TR + 3 + .5 * F.U, F.TR + 5 + .5 * F.U, x)) : 0;
   let b1 = g - op.sed * s + fold * .75 * s, b2 = b1 - op.up * s + fold * .5 * s, b3 = b2 - (op.low + root) * s + fold * .25 * s;
   b1 = Math.min(b1, g); b2 = Math.min(b2, b1); b3 = Math.min(b3, b2); let b4 = b3 - op.lith * s;
   b1 = Math.max(b1, ys); b2 = Math.max(b2, ys); b3 = Math.max(b3, ys); b4 = Math.max(b4, ys);
   const base = F.base;
   B[0] = Math.max(g, 0); B[1] = g; B[2] = b1; B[3] = b2; B[4] = b3; B[5] = b4; B[6] = Math.max(ys, base);
-  B[7] = Math.max(ys - (.05 + .03 * fc) * fac, base); B[8] = Math.max(B[7] - (.09 + .14 * fc) * fac, base);
-  B[9] = Math.max(B[8] - (.11 + .16 * fc) * fac, base); B[10] = Math.max(B[9] - (F.slabLith + .12 * fc) * fac, base); B[11] = base;
+  B[7] = Math.max(ys - (.03 + .03 * fc) * fac, base); B[8] = Math.max(B[7] - (.05 + .15 * fc) * fac, base);
+  B[9] = Math.max(B[8] - (.06 + .12 * fc) * fac, base); B[10] = Math.max(B[9] - lerp(F.slabLith, .85, fc) * fac, base); B[11] = base;
   for (let k = 1; k < 6; k++) if (B[k] < base) B[k] = base;
   o.g = g; o.fc = fc; o.along = along; o.u = u; o.ys = ys; o.z = z; o.srcX = lerp(along - F.d, x, s); o.srcZ = z;
   let k0 = 1; while (k0 < 10 && B[k0] - B[k0 + 1] < .002) k0++; o.k0 = k0;
@@ -1743,16 +1744,17 @@ function divCol(x, z, F, o) {
   const B = o.B, ax = Math.abs(x), aa = F.aa, h = F.h;
   const cf = 1 - aa * (1 - sstep(h, h + F.nk, ax));
   const age = ax / Math.max(F.rate * .05, .02);
-  let hk = -2.6 - 2.9 * Math.sqrt(clamp(ax / 5, 0, 1)) - .45 * Math.max(0, 1 - ax / .22);
+  const slowAxial = clamp(1 - F.rate / 7, 0, 1);
+  let hk = -Math.min(6.2, 2.5 + .35 * Math.sqrt(age)) - .5 * slowAxial * Math.max(0, 1 - ax / .22);
   const land = .5 + .55 * fbm(x * 1.1 + 4, z * 1.1) + .5 * aa * gauss((ax - 2.1) / .8);
   hk = lerp(hk, land, cf);
   const steps = aa * (1 - sstep(0, .8, h)) * (1 - sstep(1.6, 2.4, ax));
   hk -= 1.1 * steps * (1 - (sstep(.25, .45, ax) * .33 + sstep(.8, 1, ax) * .33 + sstep(1.45, 1.65, ax) * .34));
   let g = Yk(hk);
   for (let i = 0; i < F.vol.length; i++) { const v = F.vol[i], dx = x - v.x, dz = z - v.z, r2 = dx * dx + dz * dz; if (r2 < 1.2) g += v.h * (Math.exp(-r2 / (v.sg * v.sg)) - .2 * Math.exp(-r2 / (.1 * v.sg * v.sg))); }
-  g += Yk(.4) * gauss(ax / .16) * (1 - cf) * (.7 + .3 * vnoise(z * 1.7, 2)) * (aa >= 1 ? 1 : 0);
-  const sed = lerp(.012 + .045 * Math.sqrt(clamp(age / 40, 0, 1)), .07, cf), up = lerp(.07, .22, cf), low = lerp(.1, .21, cf);
-  const lith = lerp(.1 + .55 * Math.sqrt(Math.min(ax, 4.5) / 4.5), .9, cf), base = F.base;
+  g += Yk(.3) * gauss(ax / .16) * (1 - cf) * (.7 + .3 * vnoise(z * 1.7, 2)) * (aa >= 1 ? 1 : 0);
+  const sed = lerp(.006 + .02 * Math.sqrt(clamp(age / 60, 0, 1)), .06, cf), up = lerp(.05, .2, cf), low = lerp(.09, .18, cf);
+  const lith = lerp(Math.max(0, (Math.min(100, 10 * Math.sqrt(age)) - 11) / KMY), .8, cf), base = F.base;
   B[0] = Math.max(g, 0); B[1] = g; B[2] = Math.max(g - sed, base); B[3] = Math.max(B[2] - up, base); B[4] = Math.max(B[3] - low, base); B[5] = Math.max(B[4] - lith, base); B[6] = base;
   o.g = g; o.cf = cf; o.age = age; o.z = z; o.srcX = x - (x < 0 ? -1 : 1) * F.e / 2; o.srcZ = z; o.u = ax;
   let k0 = 1; while (k0 < 5 && B[k0] - B[k0 + 1] < .002) k0++; o.k0 = k0;
@@ -1761,18 +1763,18 @@ function divCol(x, z, F, o) {
 
 // ---------------- hot spot ----------------
 function hotCol(x, z, F, o) {
-  const B = o.B, dxp = (x - F.px) / 1.3, dzp = (z - F.pz) / 1.7, sw = gauss(dxp) * gauss(dzp);
-  const floorK = -4.7 + 1.5 * sw, floor = Yk(floorK);
+  const B = o.B, dxp = (x - F.px) / 2.2, dzp = (z - F.pz) / 2.6, sw = gauss(dxp) * gauss(dzp);
+  const floorK = -4.7 + 1.1 * sw, floor = Yk(floorK);
   let e = 0, under = 0;
   for (let i = 0; i < F.vol.length; i++) {
     const v = F.vol[i], dx = x - v.x, dz = z - v.z, r2 = dx * dx + dz * dz, s2 = v.sg * v.sg; if (r2 > 4 * s2 + .5) continue;
     const q = r2 / s2; e += v.h * (Math.exp(-Math.pow(q, .8)) - (v.act > 0 || v.age < .9 ? .12 * Math.exp(-q * 9) : 0)); under += v.h * .5 * Math.exp(-q * .35);
   }
   let g = floor + e; if (g > 0) g += Yk(.5) * fbm(x * 1.4 + 9, z * 1.4) * sstep(0, .03, g);
-  const sed = .02 + .03 * (1 - sw), up = Math.max(.05, .07 + Math.max(0, e) * .0), root = Math.min(under, .5);
-  const base = F.base, thin = .42 * sw;
+  const sed = .012 + .018 * (1 - sw), up = Math.max(.05, .07 + Math.max(0, e) * .0), root = Math.min(under, .5);
+  const base = F.base, thin = .26 * sw;
   B[0] = Math.max(g, 0); B[1] = g; B[2] = Math.max(Math.min(g - sed, floor + e * 0 - .02 + Math.max(0, e)), base);
-  B[2] = Math.max(Math.min(g - sed, g), base); B[3] = Math.max(Math.min(floor - .07, B[2]) - root * .6, base); B[4] = Math.max(B[3] - .1 - root * .25, base); B[5] = Math.max(B[4] - (.72 - thin), base); B[6] = base;
+  B[2] = Math.max(Math.min(g - sed, g), base); B[3] = Math.max(Math.min(floor - .05, B[2]) - root * .6, base); B[4] = Math.max(B[3] - .07 - root * .25, base); B[5] = Math.max(B[4] - (.6 - thin), base); B[6] = base;
   for (let k = 2; k < 6; k++) if (B[k] > B[k - 1]) B[k] = B[k - 1];
   o.g = g; o.cf = 0; o.age = 0; o.z = z; o.srcX = x - F.mv * F.myr; o.srcZ = z; o.u = 0; o.stripe = 0; o.amt = 0; o.sw = sw;
   let k0 = 1; while (k0 < 5 && B[k0] - B[k0 + 1] < .002) k0++; o.k0 = k0;
@@ -1789,9 +1791,9 @@ function transCol(x, z0, F, o) {
   const bm = F.bend * sstep(0, 3, F.R) * gauss((x - F.xb) / 1.1) * gauss(z0 / .9);
   const g = Yk(hk) + Yk(2.6) * bm;
   const base = F.base;
-  B[0] = g; B[1] = g - .09;
-  B[2] = Math.min(B[1] - .16, -.5 + .16 * Math.sin(.55 * xs + .5) + .05 * Math.sin(z * .7));
-  B[3] = B[2] - .3 - .05 * Math.sin(.9 * xs); B[4] = B[3] - .35; B[5] = B[4] - .6; B[6] = base;
+  B[0] = g; B[1] = g - .02;
+  B[2] = Math.min(B[1] - .05, -.26 + .09 * Math.sin(.55 * xs + .5) + .03 * Math.sin(z * .7));
+  B[3] = B[2] - .1 - .015 * Math.sin(.9 * xs); B[4] = B[3] - .1; B[5] = B[4] - .8; B[6] = base;
   for (let k = 2; k < 6; k++) if (B[k] < base) B[k] = base;
   o.g = g; o.z = z; o.srcX = xs; o.srcZ = z; o.k0 = 0; o.side = side; o.ux = ux; o.u = z0; o.stripe = 0; o.amt = 0;
 }
@@ -2571,6 +2573,14 @@ const INFO = {
     ]
   })
 };
+// what the model simplifies, for teachers
+const NOTES = {
+  subduction: () => L('Model notes: crust layers are drawn up to 1.6 times thicker than real so they stay visible, and the surface relief is stretched by the slider. Earthquake positions are schematic. Real slabs dip from about 10° to 80°, and deep quakes reach about 700 km, below this block.', 'Notas del modelo: las capas de la corteza se dibujan hasta 1,6 veces más gruesas que en la realidad para que se vean, y el relieve se exagera con el control. Las posiciones de los sismos son esquemáticas. Las placas reales se inclinan de unos 10° a 80° y los sismos profundos llegan a unos 700 km, por debajo de este bloque.'),
+  collision: () => L('Model notes: folds and thrusts are drawn as smooth waves. Real India–Eurasia convergence slowed from about 15 to 5 cm per year, and crust under Tibet is about 70 km thick. In some collisions the sinking oceanic slab breaks off, which is not drawn.', 'Notas del modelo: los pliegues y cabalgamientos se dibujan como ondas suaves. La convergencia real India–Eurasia bajó de unos 15 a 5 cm por año y la corteza bajo el Tíbet mide unos 70 km. En algunas colisiones la placa oceánica que se hunde se rompe, algo que no se dibuja.'),
+  divergent: () => L('Model notes: the sea-floor stripes are widened so you can see them; real magnetic reversals make much narrower bands. Ridge depth follows the age–depth curve (about 2.5 km plus 0.35 km times the square root of age in millions of years). The rate is the full spreading rate.', 'Notas del modelo: las franjas del fondo marino se ensanchan para verlas; las inversiones magnéticas reales forman bandas mucho más estrechas. La profundidad de la dorsal sigue la curva edad-profundidad (unos 2,5 km más 0,35 km por la raíz cuadrada de la edad en millones de años). La velocidad es la de apertura total.'),
+  transform: () => L('Model notes: real earthquake cycles last about 100 to 300 years. The model speeds up time and exaggerates each slip so you can watch strain build and release. San Andreas slides about 3.5 cm per year; the offset since it began is about 300 km.', 'Notas del modelo: los ciclos sísmicos reales duran de 100 a 300 años. El modelo acelera el tiempo y exagera cada deslizamiento para que veas cómo se acumula y se libera la tensión. La falla de San Andrés se desliza unos 3,5 cm por año; el desplazamiento desde que empezó es de unos 300 km.'),
+  hotspot: () => L('Model notes: real plumes rise from the base of the mantle, about 2,900 km down, far below this block, and drift slowly (about 1 cm per year or less), so they are nearly fixed. The bend in the Hawaiian–Emperor chain records a change in plate motion about 47 million years ago.', 'Notas del modelo: las plumas reales ascienden desde la base del manto, a unos 2900 km, muy por debajo de este bloque, y se mueven despacio (1 cm por año o menos), así que están casi fijas. La curva de la cadena Hawái-Emperador registra un cambio en el movimiento de la placa hace unos 47 millones de años.')
+};
 // stages: where on the timeline each begins
 function stagesFor(scn = S.scn) {
   const q = S.p[scn];
@@ -2625,14 +2635,14 @@ const EXAMPLES = {
   ],
   collision: [
     { id: 'himalaya', name: 'Himalaya', sub: () => L('India meets Eurasia', 'India choca con Eurasia'), p: { rate: 5, ocean: 3.2 } },
-    { id: 'alps', name: 'Alps', sub: () => L('Africa pushes into Europe', 'África empuja contra Europa'), p: { rate: 2.5, ocean: 2 } },
+    { id: 'alps', name: 'Alps', sub: () => L('Africa pushes into Europe', 'África empuja contra Europa'), p: { rate: 1, ocean: 2 } },
     { id: 'zagros', name: 'Zagros', sub: () => L('Arabia meets Iran', 'Arabia choca con Irán'), p: { rate: 3, ocean: 1.4 } }
   ],
   divergent: [
-    { id: 'eafrica', name: 'East African Rift', sub: () => L('A continent starts to split', 'Un continente empieza a partirse'), p: { rate: 1.5, start: 0, magma: 1 } },
+    { id: 'eafrica', name: 'East African Rift', sub: () => L('A continent starts to split', 'Un continente empieza a partirse'), p: { rate: .6, start: 0, magma: 1 } },
     { id: 'redsea', name: 'Red Sea', sub: () => L('A young ocean', 'Un océano joven'), p: { rate: 2, start: 1.4, magma: 1 } },
     { id: 'atlantic', name: 'Mid-Atlantic Ridge', sub: () => L('Iceland sits on top', 'Islandia está encima'), p: { rate: 2.5, start: 3, magma: 1.3 } },
-    { id: 'epr', name: 'East Pacific Rise', sub: () => L('The fastest spreading ridge', 'La dorsal que más rápido se abre'), p: { rate: 8, start: 3, magma: 1 } }
+    { id: 'epr', name: 'East Pacific Rise', sub: () => L('The fastest spreading ridge', 'La dorsal que más rápido se abre'), p: { rate: 12, start: 3, magma: 1 } }
   ],
   hotspot: [
     { id: 'hawaii', name: 'Hawaii', sub: () => L('Pacific plate over the Hawaiian hot spot', 'Placa del Pacífico sobre el punto caliente de Hawái'), p: { rate: 8, magma: 1.1, start: 4 } },
@@ -2644,7 +2654,7 @@ const EXAMPLES = {
     { id: 'sanandreas', name: 'San Andreas', sub: () => L('Pacific plate slides past North America', 'La placa del Pacífico se desliza junto a Norteamérica'), p: { rate: 3.5, lock: .85, bend: .35, sense: 1 } },
     { id: 'anatolian', name: 'North Anatolian', sub: () => L('Turkey: a long, straight fault', 'Turquía: una falla larga y recta'), p: { rate: 2.5, lock: .95, bend: 0, sense: 1 } },
     { id: 'alpine', name: 'Alpine Fault', sub: () => L('New Zealand, with a bend', 'Nueva Zelanda, con una curva'), p: { rate: 3, lock: .8, bend: -.4, sense: 1 } },
-    { id: 'deadsea', name: 'Dead Sea Transform', sub: () => L('A left-lateral fault', 'Una falla de desplazamiento lateral izquierdo'), p: { rate: 1.5, lock: .7, bend: -.25, sense: -1 } }
+    { id: 'deadsea', name: 'Dead Sea Transform', sub: () => L('A left-lateral fault', 'Una falla de desplazamiento lateral izquierdo'), p: { rate: .5, lock: .7, bend: -.25, sense: -1 } }
   ]
 };
 
@@ -2673,10 +2683,10 @@ function labelDefs(Fr) {
     const col = Fr.scn === 'collision';
     face('plateL', col ? 'Colliding continent' : 'Oceanic plate', col ? 'Continente que choca' : 'Placa oceánica', -3.9, 6, 9, true);
     face('plateR', col ? 'Overriding continent' : 'Overriding plate', col ? 'Continente superior' : 'Placa superior', Fr.TR + 4.7, 1, 4, true);
-    { let bx = Fr.TR, by = 9; for (let x = Fr.TR - .8; x <= Fr.TR + .8; x += .04) { Fr.col(x, zc, Fr, lc); if (lc.B[1] < by) { by = lc.B[1]; bx = x; } } out.push({ id: 'trench', text: L('Trench', 'Fosa'), x: bx, y: by + .14, z: zc + .02, n: 'f' }); }
+    if (!col || Fr.thick < .3) { let bx = Fr.TR, by = 9; for (let x = Fr.TR - .8; x <= Fr.TR + .8; x += .04) { Fr.col(x, zc, Fr, lc); if (lc.B[1] < by) { by = lc.B[1]; bx = x; } } out.push({ id: 'trench', text: L('Trench', 'Fosa'), x: bx, y: by + .14, z: zc + .02, n: 'f' }); }
     if (!col || Fr.thick < .3) top('arc', Fr.opOcean ? 'Island arc' : 'Volcanic arc', Fr.opOcean ? 'Arco de islas' : 'Arco volcánico', Fr.xArc, zc - .2, .38 * (Fr.growth || 1) + .1);
     face('wedge', 'Mantle wedge', 'Cuña del manto', Fr.xArc + .85, 5, 5);
-    face('slab', col ? 'Sinking slab' : 'Subducting slab', col ? 'Placa que se hunde' : 'Placa subducida', Fr.TR + 2.5, 6, 9, true);
+    face('slab', col ? (Fr.thick > .3 ? 'Underthrust continental crust' : 'Sinking slab') : 'Subducting slab', col ? (Fr.thick > .3 ? 'Corteza continental subyacente' : 'Placa que se hunde') : 'Placa subducida', Fr.TR + 2.5, 6, 9, true);
     face('asth', 'Asthenosphere', 'Astenosfera', -2.6, 10, 10);
     if (col && Fr.thick > .35) { Fr.col(Fr.TR + 1.7, zc, Fr, lc); out.push({ id: 'root', text: L('Thick crustal root', 'Raíz de corteza gruesa'), x: Fr.TR + 1.7, y: lc.B[4] - .02, z: zc + .02, n: 'f', rock: true }); top('range', 'Mountain belt', 'Cordillera', Fr.TR + 1.3, zc - .2, .4); }
     if (!col) face('wad', 'Earthquake zone', 'Zona sísmica', Fr.TR + .75, 6, 6);
@@ -2711,18 +2721,26 @@ function updateLabels(Fr) {
   const on = S.show.labels, defs = on ? labelDefs(Fr) : [], seen = new Set();
   const spec = S.show.arrows ? arrows.filter(a => a.spec && a.spec.text && a.g.visible).map((a, i) => ({ id: 'ar' + i, text: a.spec.text, x: a.spec.x + a.spec.dir * a.spec.len / 2, y: a.spec.y - .32, z: a.spec.z, n: 'a', speed: true })) : [];
   const cp = camera.position, v = new THREE.Vector3(), zc = zCut();
-  const small = vw < 560;
+  const small = vw < 560, placed = [];
   for (const d of defs.concat(spec)) {
     if (small && (d.speed || !PRI.has(d.id))) continue;
     seen.add(d.id); let el = labelEls.get(d.id);
     if (!el) { el = document.createElement('span'); el.className = 'lbl' + (d.rock ? ' lbl--rock' : '') + (d.speed ? ' lbl--speed' : ''); box.appendChild(el); labelEls.set(d.id, el); el.dataset.t = ''; }
-    const html = d.speed ? `<b>${d.text}</b>` : `<i></i>${d.text}`; if (el.dataset.t !== html) { el.innerHTML = html; el.dataset.t = html; }
+    const html = d.speed ? `<b>${d.text}</b>` : `<i></i>${d.text}`; if (el.dataset.t !== html) { el.innerHTML = html; el.dataset.t = html; el._w = 0; }
     v.set(d.x, d.y, d.z).project(camera);
     const px = (v.x * .5 + .5) * vw, py = (-v.y * .5 + .5) * vh, behind = v.z > 1;
     let hidden = behind;
     if (d.n === 'f' && cp.z < zc - .2) hidden = true;
     if (d.n === 't' && d.z > zc + .02) hidden = true;
-    el.classList.toggle('is-hidden', hidden); el.style.transform = `translate(${(px - 6).toFixed(1)}px,${(py - 6).toFixed(1)}px) translate(0,-100%)`;
+    el.classList.toggle('is-hidden', hidden); placed.push({ el, x: px - 6, y: py - 6, hidden, speed: !!d.speed });
+  }
+  // keep labels from sitting on top of each other: nudge up or down until a spot is free
+  const boxes = [], cap = $('#stageCap'); if (cap && cap.offsetWidth) boxes.push({ x: cap.offsetLeft - 4, y: cap.offsetTop - 4, w: cap.offsetWidth + 8, h: cap.offsetHeight + 8 });
+  for (const p of placed.sort((a, b) => (b.speed - a.speed))) {
+    if (p.hidden) { p.el.style.transform = `translate(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px) translate(0,-100%)`; continue; }
+    const w = p.el._w || (p.el._w = p.el.offsetWidth || 90), h = 24; let dy = 0;
+    for (const t of [0, -26, 26, -52, 52, -78, 78]) { const y0 = p.y + t - h; if (!boxes.some(b => p.x < b.x + b.w + 3 && p.x + w + 3 > b.x && y0 < b.y + (b.h || h) && y0 + h > b.y)) { dy = t; break; } }
+    boxes.push({ x: p.x, y: p.y + dy - h, w }); p.el.style.transform = `translate(${p.x.toFixed(1)}px,${(p.y + dy).toFixed(1)}px) translate(0,-100%)`;
   }
   for (const [id, el] of labelEls) if (!seen.has(id)) { el.remove(); labelEls.delete(id); }
   box.classList.toggle('is-off', !on && !spec.length);
@@ -2860,7 +2878,7 @@ function hoverTick() {
     for (let i = 0; i < ls.length; i++) if (p.y <= B[i] + 1e-4 && p.y >= B[i + 1] - 1e-4 && B[i] - B[i + 1] > .003) { k = i; if (p.y < B[i] - 1e-4) break; }
     if (k < 0) { hideTip(); return; }
     const L0 = ls[k], th = (B[k] - B[k + 1]) * KMY, depth = Math.max(0, (B[1] - p.y) * KMY);
-    html = `<b>${tr(LANG === 'es' ? L0.es : L0.name)}</b><small>${L0.water ? L('Water', 'Agua') : L('Density', 'Densidad') + ' ' + L0.dens + ' g/cm³'} · ${th >= 10 ? Math.round(th) : fmt1(th)} km ${L('thick', 'de grosor')}</small><small>${L('Depth', 'Profundidad')} ${Math.round(depth)} km</small>`;
+    html = `<b>${tr(LANG === 'es' ? L0.es : L0.name)}</b><small>${L0.water ? L('Water', 'Agua') : L('Density', 'Densidad') + ' ' + L0.dens + ' g/cm³'} · ${th >= 10 ? Math.round(th) : fmt1(th)} km ${L('thick', 'de grosor')}</small><small>${L('Depth', 'Profundidad')} ${Math.round(depth)} km</small>${L0.note ? `<small>${LANG === 'es' ? L0.notees : L0.note}</small>` : ''}`;
   }
   const tip = $('#ttip3'); tip.innerHTML = html; tip.classList.add('ttip3--on'); view3d.classList.add('is-hover');
   const tw = tip.offsetWidth, th2 = tip.offsetHeight;
@@ -3053,7 +3071,7 @@ function setScenario(scn, o = {}) {
   F = makeFrame(); buildBlock(); genQuakes(); buildArrows(); if (HAS3D) resetFx();
   $('#capEyebrow').innerHTML = SCN_NAME[scn]() + `<span class="cap-sub"> · ${SCN_SUB[scn]()}</span>`;
   const inf = INFO[scn](); $('#abEyebrow').textContent = L('Now showing', 'Ahora se muestra'); $('#abTitle').textContent = SCN_NAME[scn]() + ' · ' + SCN_SUB[scn]();
-  $('#abText').innerHTML = inf.text; $('#abNotice').innerHTML = inf.notice.map(n => `<li>${n}</li>`).join('');
+  $('#abText').innerHTML = inf.text; $('#abNote').textContent = NOTES[scn](); $('#abNotice').innerHTML = inf.notice.map(n => `<li>${n}</li>`).join('');
   $('#profTitle').textContent = L('Surface and crust along the section', 'Superficie y corteza a lo largo del corte');
   buildRate(); buildParams(); renderExamples(); renderKey(); renderTicks();
   camT.ty = F.base * .42 + .1; if (!o.keepView) { setView(S.view, true); if (!REDUCED && o.reveal !== false && HAS3D && cam.r > 1) { cam.az -= .35; cam.el = Math.max(.12, cam.el - .12); cam.r *= 1.14; } }
@@ -4254,7 +4272,7 @@ Object.assign(ES, {
 "Relief stretch": "Exageración del relieve",
 "Front face": "Cara frontal",
 "in": "hacia dentro",
-"Slide the cut to move the cross-section through the block. Relief is stretched so mountains and trenches show; the deep layers stay true to scale.": "Desliza el corte para mover la sección por el bloque. El relieve está exagerado para que se vean montañas y fosas; las capas profundas conservan la escala real.",
+"Slide the cut to move the cross-section through the block. Relief is stretched so mountains and trenches show; the deep layers keep their true scale, with crust drawn a little thicker than real.": "Desliza el corte para mover la sección por el bloque. El relieve está exagerado para que se vean montañas y fosas; las capas profundas conservan la escala real y la corteza se dibuja algo más gruesa que en la realidad.",
 "Show": "Mostrar",
 "Labels": "Etiquetas",
 "Plate motion arrows": "Flechas de movimiento de placas",
