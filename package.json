@@ -1,0 +1,16 @@
+{
+  "name": "tectonics",
+  "private": true,
+  "scripts": {
+    "art": "node build.mjs --art",
+    "build": "node build.mjs",
+    "dev": "node build.mjs && python3 -m http.server 8787 -d dist",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "three": "^0.128.0",
+    "wrangler": "^4.142.0"
+  },
+  "homepage": "https://tectonics.sammartano.workers.dev"
+}

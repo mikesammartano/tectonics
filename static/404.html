@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page not found · Tectonics</title>
+<meta name="description" content="This page doesn’t exist. Head back to Tectonics to play with plate boundaries in 3D.">
+<meta name="robots" content="noindex">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg?v=1" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png?v=1" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
+<script>try{var m=localStorage.getItem('tectonics.theme');if(m==='light'||m==='dark')document.documentElement.setAttribute('data-mode',m)}catch(e){}</script>
+<style>
+:root{
+  color-scheme:dark;
+  --page:#1d1d1f; --card:#1d1d1f; --edge:rgba(255,255,255,.12); --edge-soft:rgba(255,255,255,.07);
+  --ink:#f5f5f7; --ink-1:#e8e8ed; --ink-2:#d2d2d7; --ink-meta:#86868b;
+  --input:#2997ff; --input-ink:#6bb6ff; --on-accent:#ffffff; --input-wash:rgba(41,151,255,.09);
+  --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  color-scheme:light;
+  --page:#f5f5f7; --card:#ffffff; --edge:rgba(0,0,0,.14); --edge-soft:rgba(0,0,0,.08);
+  --ink:#1d1d1f; --ink-1:#333336; --ink-2:#424245; --ink-meta:#86868b;
+  --input:#0071e3; --input-ink:#0066cc; --on-accent:#ffffff; --input-wash:rgba(0,113,227,.09);
+}}
+:root[data-mode="dark"]{
+  color-scheme:dark;
+  --page:#1d1d1f; --card:#1d1d1f; --edge:rgba(255,255,255,.12); --edge-soft:rgba(255,255,255,.07);
+  --ink:#f5f5f7; --ink-1:#e8e8ed; --ink-2:#d2d2d7; --ink-meta:#86868b;
+  --input:#2997ff; --input-ink:#6bb6ff; --on-accent:#ffffff; --input-wash:rgba(41,151,255,.09);
+}
+:root[data-mode="light"]{
+  color-scheme:light;
+  --page:#f5f5f7; --card:#ffffff; --edge:rgba(0,0,0,.14); --edge-soft:rgba(0,0,0,.08);
+  --ink:#1d1d1f; --ink-1:#333336; --ink-2:#424245; --ink-meta:#86868b;
+  --input:#0071e3; --input-ink:#0066cc; --on-accent:#ffffff; --input-wash:rgba(0,113,227,.09);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--page); color:var(--ink-2); font:400 1rem/1.6 var(--font); -webkit-font-smoothing:antialiased}
+.wrap{max-width:44rem; margin:0 auto; padding:2rem 1rem 4rem; padding-top:calc(2rem + env(safe-area-inset-top,0px))}
+.brand{display:inline-flex; align-items:center; gap:.5rem; color:var(--ink); text-decoration:none; border-radius:.75rem; padding:.25rem .5rem .25rem .25rem; margin-left:-.25rem}
+.brand:focus-visible,a:focus-visible{outline:2px solid var(--input); outline-offset:2px}
+.mark{width:1.75rem; height:1.75rem; border-radius:.5625rem; background:var(--input); color:var(--on-accent); display:grid; place-items:center; box-shadow:0 0 0 .25rem var(--input-wash)}
+.mark svg{width:1.25rem; height:1.25rem}
+.word{font:600 1.25rem/1 var(--font); letter-spacing:-.045em}
+h1{margin:2.5rem 0 .5rem; color:var(--ink); font:600 clamp(2rem,6vw,2.75rem)/1.1 var(--font); letter-spacing:-.03em}
+.lede{margin:0 0 2rem; font-size:1.125rem; color:var(--ink-1)}
+.meta{color:var(--ink-meta); font-size:.875rem}
+.summary{display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(12rem,1fr)); margin:0 0 2.5rem; padding:0; list-style:none}
+.summary li{background:var(--card); border:1px solid var(--edge); border-radius:1rem; padding:1rem 1.125rem; color:var(--ink-1); font-weight:500; line-height:1.4}
+.summary b{display:block; color:var(--input-ink); font:600 .75rem/1 var(--font); letter-spacing:.08em; text-transform:uppercase; margin-bottom:.5rem}
+h2{margin:2.25rem 0 .5rem; color:var(--ink); font:600 1.25rem/1.3 var(--font); letter-spacing:-.015em}
+p,ul{margin:0 0 1rem}
+ul{padding-left:1.25rem}
+li{margin:.25rem 0}
+strong{color:var(--ink-1); font-weight:600}
+a{color:var(--input-ink); text-underline-offset:.2em}
+code{font:500 .875em/1 ui-monospace, SFMono-Regular, Menlo, monospace; background:var(--card); border:1px solid var(--edge-soft); border-radius:.375rem; padding:.125rem .375rem}
+footer{margin-top:3rem; padding-top:1.25rem; border-top:1px solid var(--edge-soft)}
+.back{display:inline-flex; align-items:center; min-height:2.75rem; padding:0 1.125rem; border-radius:.75rem; background:var(--input); color:var(--on-accent); font:600 .875rem/1 var(--font); text-decoration:none}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="brand" href="/" aria-label="Tectonics home"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-width="2" d="M3.5 8.5H11l4 4.5h5.5"/><path stroke-width="2" d="M3.5 15H8l4 4.5h8.5"/></svg></span><span class="word">Tectonics</span></a>
+
+  <h1>Off the plate</h1>
+  <p class="lede">There’s nothing at this address. It may have moved, or the link has a typo.</p>
+  <p><a class="back" href="/">Back to Tectonics</a></p>
+</main>
+</body>
+</html>

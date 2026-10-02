@@ -1,0 +1,19 @@
+// Tectonics on Cloudflare: one Worker serving the static page from ./dist plus POST /api/feedback (src/worker.js)
+// Build and deploy:  npm run deploy   (or push to main and let Cloudflare build it)
+{
+  "name": "tectonics",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*"]
+  },
+  // Feedback email. Leave commented out until Email Routing is enabled on the sending zone and
+  // sammartano@me.com is a verified destination: a deploy with this binding on a zone without
+  // Email Routing is rejected. Until then /api/feedback answers 503 and the form opens the mail app.
+  // "send_email": [{ "name": "FEEDBACK", "destination_address": "sammartano@me.com" }],
+  "observability": { "enabled": true }
+}
