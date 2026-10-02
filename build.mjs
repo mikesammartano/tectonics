@@ -67,7 +67,7 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" vi
 <g transform="translate(80 92)"><rect width="104" height="104" rx="24" fill="url(#bg)"/><rect width="104" height="104" rx="24" fill="url(#sheen)"/>
   <g transform="translate(${52 - 12 * 4.6} ${52 - 13.7 * 4.6}) scale(4.6)">${glyph(2)}</g></g>
 <text x="76" y="316" font-family="Helvetica Neue" font-weight="700" font-size="94" letter-spacing="-1" fill="#1d1d1f">Tectonics</text>
-<text x="80" y="376" font-family="Helvetica Neue" font-size="32" fill="#424245">Four plate boundaries in 3D.</text>
+<text x="80" y="376" font-family="Helvetica Neue" font-size="32" fill="#424245">Plate boundaries and hot spots in 3D.</text>
 <text x="80" y="418" font-family="Helvetica Neue" font-size="32" fill="#424245">Play them, slice them, print them.</text>
 <text x="80" y="520" font-family="Helvetica Neue" font-size="24" fill="#6e6e73">Free for classrooms · videos, worksheets, STL and AR</text>
 </svg>`;
@@ -128,7 +128,7 @@ html = html.replace('<title>Tectonics</title>', '<title>Tectonics: Interactive 3
 if (SITE) html = html.replace('"@type": "WebApplication",', `"@type": "WebApplication",\n  "url": "${SITE}/",\n  "image": "${SITE}/og.png",`);
 const NOSCRIPT = `<noscript><div style="max-width:40rem;margin:0 auto;padding:2rem 1.25rem;font:16px/1.6 system-ui,sans-serif">
 <h2>Tectonics: plate boundaries in 3D</h2>
-<p>Tectonics is a free classroom tool with four 3D block diagrams you can play, scrub and slice open: subduction, collision, divergent boundaries and transform faults.</p>
+<p>Tectonics is a free classroom tool with 3D block diagrams you can play, scrub and slice open: subduction, collision, divergent boundaries, transform faults and hot spots.</p>
 <ul><li>Watch millions of years of plate motion, with earthquakes, volcanoes and magma</li><li>Slice the block open to see the crust, mantle and slab</li><li>Make worksheets with answer keys</li><li>Download STL files for 3D printing and USDZ files for AR</li></ul>
 <p>Tectonics needs JavaScript and WebGL to draw the 3D models. <a href="/privacy">Privacy</a></p></div></noscript>`;
 html = html.replace('<body>\n', '<body>\n' + NOSCRIPT + '\n');

@@ -1,6 +1,6 @@
 # Tectonics
 
-Four plate boundaries as 3D block diagrams you can play, scrub and slice open: **subduction**, **collision**, **divergent** and **transform**. A free classroom tool, built as a sibling of [topo.science](https://topo.science) with the same design system.
+Plate boundaries and hot spots as 3D block diagrams you can play, scrub and slice open: **subduction**, **collision**, **divergent**, **transform** and **hot spot** (a plate drifting over a fixed mantle plume, building an island chain). A free classroom tool, built as a sibling of [topo.science](https://topo.science) with the same design system.
 
 - **Play millions of years.** A timeline with stages, speed, loop, and a rate slider in cm per year. Earthquakes, magma, volcanoes, plate arrows and mantle flow all follow the clock.
 - **Slice it.** Move the cross-section through the block, stretch the relief, hover any rock for its name, density and thickness.
