@@ -5,6 +5,8 @@ Plate boundaries and hot spots as 3D block diagrams you can play, scrub and slic
 - **Play millions of years.** A timeline with stages, speed, loop, and a rate slider in cm per year. Earthquakes, magma, volcanoes, plate arrows and mantle flow all follow the clock.
 - **Slice it.** Move the cross-section through the block, stretch the relief, hover any rock for its name, density and thickness.
 - **Learn.** Mike Sammartano's plate tectonics videos in the panel, each with a "Try" button that sets the model up (YouTube, privacy-enhanced mode, nothing loads until you press play).
+- **Where on Earth.** A satellite and shaded-relief map (Esri tiles) with Bird's PB2002 plate boundaries, a pin and a section line for every real example, and a photo from each place's Wikipedia article.
+- **Zoom.** Zoom buttons, a zoom slider, keys `+`, `-` and `0`, and "Zoom to" shortcuts (trench, arc, ridge axis, fault, plume and more).
 - **Worksheets.** Seeded generator (English or Español): model snapshots, label the diagram, vocabulary, multiple choice, rate/time/distance problems, explain and predict, and answer-key pages. PDF at 300 dpi or print.
 - **Files.** Binary STL (one watertight solid, or one per layer in a .zip) and USDZ for AR, exactly as you see the block, plus a PNG.
 - **Everything else from the family:** Light / dark / auto, English / Español, share links and `?embed`, present mode, keyboard shortcuts, installable PWA, feedback form, Stripe donation card, privacy page.

@@ -155,7 +155,7 @@ writeFileSync('dist/_headers', `/*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.stripe.com https://support.sammartano.workers.dev; frame-src https://www.youtube-nocookie.com https://js.stripe.com https://hooks.stripe.com; base-uri 'self'; form-action 'self'; frame-ancestors *; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://server.arcgisonline.com https://upload.wikimedia.org https://thumb.wikimedia.org; font-src 'self'; connect-src 'self' https://api.stripe.com https://support.sammartano.workers.dev https://en.wikipedia.org https://es.wikipedia.org; frame-src https://www.youtube-nocookie.com https://js.stripe.com https://hooks.stripe.com; base-uri 'self'; form-action 'self'; frame-ancestors *; object-src 'none'
 
 /
   Cache-Control: public, max-age=0, must-revalidate
