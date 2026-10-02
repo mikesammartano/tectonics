@@ -1656,7 +1656,7 @@ function makeFrame(scn = S.scn, t = S.t) {
     for (let i = 0; i < n; i++) {
       const j1 = r() - .5, j2 = r() - .5, j3 = r(), ph = r();
       const act = Math.pow(Math.max(0, Math.sin(Math.PI * 2 * (F.myr * .32 + ph))), 6) * alive * q.magma;
-      F.vol.push({ x: F.xArc + j1 * .35, z: lerp(-1.85, 1.85, (i + .5) / n) + j2 * .35, sg: (F.opOcean ? .34 : .26) + .12 * j3, h: Yk((F.opOcean ? 7.6 : 5.4) * (.55 + .5 * j3) * F.growth * q.magma * alive), act });
+      F.vol.push({ x: F.xArc + j1 * .35, z: lerp(-1.85, 1.85, (i + .5) / n) + j2 * .35, ph: ph * 6.28, sg: (F.opOcean ? .34 : .26) + .12 * j3, h: Yk((F.opOcean ? 7.6 : 5.4) * (.55 + .5 * j3) * F.growth * q.magma * alive), act });
     }
     F.maxAct = F.vol.reduce((m, v) => Math.max(m, v.act), 0);
     F.fold = col ? .07 * F.thick * S.exag / 8 : 0;
@@ -1664,7 +1664,7 @@ function makeFrame(scn = S.scn, t = S.t) {
   } else if (scn === 'divergent') {
     F.e = F.d + q.start; F.eb = 1.2; F.aa = Math.min(1, F.e / F.eb); F.h = Math.max(0, (F.e - F.eb) / 2); F.nk = 1.3;
     for (let i = 0; i < 5; i++) { const j1 = r() - .5, j2 = r(), ph = r(); const act = Math.pow(Math.max(0, Math.sin(Math.PI * 2 * (F.myr * .45 + ph))), 6) * q.magma;
-      F.vol.push({ x: (i % 2 ? 1 : -1) * (.12 + .3 * j2), z: lerp(-1.9, 1.9, (i + .5) / 5) + j1 * .3, sg: .18 + .08 * j2, h: Yk(1.6 * sstep(.35, 1, F.aa) * (1 - sstep(0, 1.4, F.h)) * (.6 + .6 * j2) * q.magma), act }); }
+      F.vol.push({ x: (i % 2 ? 1 : -1) * (.12 + .3 * j2), z: lerp(-1.9, 1.9, (i + .5) / 5) + j1 * .3, ph: ph * 6.28, sg: .18 + .08 * j2, h: Yk(1.6 * sstep(.35, 1, F.aa) * (1 - sstep(0, 1.4, F.h)) * (.6 + .6 * j2) * q.magma), act }); }
     F.maxAct = F.vol.reduce((m, v) => Math.max(m, v.act), 0);
     F.ridgeAct = q.magma * (.55 + .45 * Math.sin(F.myr * 3.1)) * sstep(.5, 1, F.aa);
     F.col = divCol;
@@ -1676,7 +1676,7 @@ function makeFrame(scn = S.scn, t = S.t) {
       const x = F.px + F.mv * age; if (x > HX + 1.6) continue;
       const grow = sstep(0, .4, age), decay = Math.exp(-Math.max(0, age - .7) / 4.4), hk = 12.5 * (.75 + .5 * j) * grow * decay * q.magma;
       const act = age < 1.1 ? Math.pow(Math.max(0, Math.sin(Math.PI * 2 * (F.myr * .5 + j))), 4) * q.magma * (1 - sstep(.5, 1.1, age)) : 0;
-      F.vol.push({ x, z: F.pz + (j2 - .5) * .22, sg: .3 * (.85 + .3 * j) * (1 + .1 * Math.min(age, 4)), h: Yk(hk), act, age, hk });
+      F.vol.push({ ph: j * 6.28, x, z: F.pz + (j2 - .5) * .22, sg: .3 * (.85 + .3 * j) * (1 + .1 * Math.min(age, 4)), h: Yk(hk), act, age, hk });
     }
     F.maxAct = F.vol.reduce((m, v) => Math.max(m, v.act), 0); F.ridgeAct = 0; F.aa = 0; F.h = 0; F.cont = false;
     F.col = hotCol;
@@ -1825,8 +1825,7 @@ function groundColor(F, o, x, z, out) {
       const v = F.vol[i], dx = x - v.x, dz = z - v.z, r2 = dx * dx + dz * dz; if (r2 > 1.2 * v.sg * v.sg * 4) continue;
       const e = Math.exp(-r2 / (v.sg * v.sg * 1.4)), fresh = clamp(1 - v.age / 1.6, 0, 1);
       if (hk > -.3) { mixTo(out, out, K.lava, e * fresh * .85); mixTo(out, out, K.volc, e * .25); }
-      if (v.act > 0 && S.show.magma) glow = Math.max(glow, v.act * Math.exp(-r2 / (.08 * v.sg * v.sg)) * 1.3);
-      else if (v.age < .6 && S.show.magma) glow = Math.max(glow, .35 * fresh * Math.exp(-r2 / (.25 * v.sg * v.sg)));
+      if (S.show.magma) { const st = Math.pow(Math.max(0, Math.sin(Math.atan2(dz, dx) * 6 + v.ph)), 6) * (.55 + .45 * vnoise(x * 9, z * 9)); if (v.act > 0) glow = Math.max(glow, v.act * (Math.exp(-r2 / (.08 * v.sg * v.sg)) * 1.5 + st * Math.exp(-r2 / (1.6 * v.sg * v.sg)) * 1.1)); else if (v.age < .9) glow = Math.max(glow, fresh * (.4 * Math.exp(-r2 / (.25 * v.sg * v.sg)) + .5 * st * Math.exp(-r2 / (1.2 * v.sg * v.sg)))); }
     }
   } else if (F.scn === 'divergent') {
     if (o.cf > .5 || hk > 0) hypsoTo(out, hk);
@@ -1834,7 +1833,7 @@ function groundColor(F, o, x, z, out) {
     if (o.cf > .5 && hk < 0) { hypsoTo(_g2, hk); mixTo(out, K.seabedLo, _g2, .3); }
     for (let i = 0; i < F.vol.length; i++) {
       const v = F.vol[i], dx = x - v.x, dz = z - v.z, r2 = dx * dx + dz * dz; if (r2 > .5) continue;
-      if (v.act > 0 && r2 < .06) glow = Math.max(glow, v.act * Math.exp(-r2 / (.12 * v.sg * v.sg)) * 1.2);
+      if (v.act > 0 && r2 < .3) { const st = Math.pow(Math.max(0, Math.sin(Math.atan2(dz, dx) * 6 + v.ph)), 6); glow = Math.max(glow, v.act * (Math.exp(-r2 / (.12 * v.sg * v.sg)) * 1.4 + st * Math.exp(-r2 / (1.4 * v.sg * v.sg)))); }
       if (v.h > .02) mixTo(out, out, K.volc, Math.exp(-r2 / (.5 * v.sg * v.sg)) * .5);
     }
     if (o.cf < .5 && o.u < .22 && S.show.magma) glow = Math.max(glow, F.ridgeAct * (1 - o.u / .22) * .8);
@@ -1847,7 +1846,7 @@ function groundColor(F, o, x, z, out) {
     for (let i = 0; i < F.vol.length; i++) {
       const v = F.vol[i], dx = x - v.x, dz = z - v.z, r2 = dx * dx + dz * dz; if (r2 > .5) continue;
       if (v.h > .03) mixTo(out, out, K.volc2, Math.exp(-r2 / (.55 * v.sg * v.sg)) * .55);
-      if (v.act > 0) glow = Math.max(glow, v.act * Math.exp(-r2 / (.1 * v.sg * v.sg)) * 1.15);
+      if (v.act > 0 && S.show.magma) { const st = Math.pow(Math.max(0, Math.sin(Math.atan2(dz, dx) * 6 + v.ph)), 6) * (.55 + .45 * vnoise(x * 9, z * 9)); glow = Math.max(glow, v.act * (Math.exp(-r2 / (.1 * v.sg * v.sg)) * 1.5 + st * Math.exp(-r2 / (1.6 * v.sg * v.sg)) * 1.0)); }
     }
   }
   return glow;
@@ -1873,16 +1872,17 @@ function wallColor(F, k, f, x, y, z, B, o, out, bandIdx) {
     }
     if (F.scn === 'hotspot') {
       if (S.show.magma) {
-        const dx = x - F.px, zz = (z - F.pz) / 1.7, cz = Math.exp(-zz * zz), w = .17 + .75 * sstep(B[5] - 1.1, B[5] - .05, y);
-        if (k >= 3) glow += 1.05 * gauss(dx / w) * cz * sstep(F.base, F.base + .4, y) * (k === 5 ? 1 : .8);
-        if (k <= 4 && y < B[1] && Math.abs(dx) < .4) glow += (.3 + .7 * F.maxAct) * gauss(dx / .08) * cz * .9;
+        const dx = x - F.px - .07 * Math.sin(y * 4.2 + 1.3), zz = (z - F.pz) / 1.7, czf = .6 + .4 * Math.exp(-zz * zz), dy = y - B[5];
+        const w = dy < 0 ? .12 + .1 * sstep(B[5] - 2.2, B[5] - 1.1, y) + .62 * sstep(B[5] - 1.0, B[5], y) : .1 + .5 * (1 - sstep(0, .3, dy));
+        if (k >= 3) glow += (1.15 * gauss(dx / w) + .6 * gauss(dx / (w * .45))) * czf * sstep(F.base, F.base + .4, y) * (k === 5 ? 1 : 1.1);
+        if (k <= 4 && y < B[1] && Math.abs(dx) < .4) glow += (.6 + .6 * F.maxAct) * gauss(dx / .07) * czf;
       }
     } else if (S.show.magma) {
       const ax = Math.abs(x), ocean = 1 - cf;
-      if (ax < 1.6) {
+      if (ax < 4.6) {
         glow += F.ridgeAct * ocean * .9 * gauss(ax / .09) * (k <= 4 ? 1 : 0) * (y > B[5] ? 1 : 0);
         if (k >= 3 && k <= 5) glow += (.5 + .5 * F.aa) * .5 * gauss(ax / .45) * gauss((y - (B[4] - .08)) / .3) * (F.aa > .2 ? 1 : 0);
-        if (k === 5) glow += F.aa * .45 * gauss(ax / (.9 + .6 * F.h)) * sstep(-2.6, -.4, y);
+        if (k === 5) glow += F.aa * .34 * gauss(ax / (.9 + .45 * F.h)) * sstep(-2.6, -.4, y);
         if (k <= 4 && cf > .05) glow += F.maxAct * F.aa * cf * .8 * gauss(ax / .1) * (y < B[1] && y > B[4] - .2 ? 1 : 0) * (1 - sstep(.2, 1.4, F.h));
       }
     }
@@ -1916,7 +1916,7 @@ function wallColor(F, k, f, x, y, z, B, o, out, bandIdx) {
         let cz = 0; for (let i = 0; i < F.vol.length; i++) { const dz = (z - F.vol[i].z) / .5; cz = Math.max(cz, Math.exp(-dz * dz) * (.3 + .7 * (F.vol[i].act > .02 ? 1 : .25))); }
         const live = (F.cont ? 1 - sstep(0, .6, F.thick) : 1) * F.q.magma;
         if (k === 5) glow += live * (.32 * gauss(dx / .55 - .2) * gauss((y - (B[6] + .55)) / .55));
-        if (k >= 1 && k <= 4 && y > B[5] - .05) glow += live * cz * (.45 + .55 * F.maxAct) * (.9 * gauss(dx / .075) + .55 * gauss(dx / .35) * gauss((y - (B[4] - .08)) / .2));
+        if (k >= 1 && k <= 4 && y > B[5] - .05) glow += live * cz * (.75 + .5 * F.maxAct) * (1.5 * gauss(dx / .09) + .95 * gauss(dx / .38) * gauss((y - (B[4] - .08)) / .24));
       }
     }
   }
@@ -1959,7 +1959,9 @@ float aaLine(float v,float w){float d=abs(fract(v+.5)-.5)/max(fwidth(v),1e-4);re
   mat.customProgramCacheKey = () => h.key || 'tect';
   return mat;
 }
-const GLOW = 'totalEmissiveRadiance += vec3(1.,.42,.1) * vGlow * 1.25;';
+const GLOW = `{ float gl = vGlow * (1. + .1 * sin(uTime * 3.5 + vWp.y * 9. + vWp.x * 4.));
+  vec3 hot = mix(vec3(.85,.14,.03), vec3(1.,.5,.1), smoothstep(.15,.7,gl)); hot = mix(hot, vec3(1.,.82,.35), smoothstep(.8,1.5,gl)); hot = mix(hot, vec3(1.,.97,.8), smoothstep(1.5,2.2,gl));
+  totalEmissiveRadiance += hot * gl * 1.45; }`;
 const groundMat = HAS3D && hook(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92, metalness: 0 }), {
   key: 'ground', u: GROUND_U,
   vdecl: 'attribute vec4 aSrc; attribute float aGlow; varying vec4 vSrc; varying float vGlow;', vbody: 'vSrc = aSrc; vGlow = aGlow;',
@@ -2229,7 +2231,7 @@ function makePoints(n, additive) {
   const pts = new THREE.Points(geo, mat); pts.frustumCulled = false; pts.renderOrder = 6; if (scene) scene.add(pts);
   return { pts, pos, col, size, n, geo };
 }
-const QMAX = 360, quakePts = HAS3D ? makePoints(QMAX, false) : null, tracerPts = HAS3D ? makePoints(240 * 4, true) : null, plumePts = HAS3D ? makePoints(220, false) : null;
+const QMAX = 360, quakePts = HAS3D ? makePoints(QMAX, false) : null, tracerPts = HAS3D ? makePoints(240 * 4, true) : null, plumePts = HAS3D ? makePoints(380, false) : null;
 const DEPTH_RAMP = [[0, hex('#ffc23a')], [.35, hex('#ff6a3d')], [.7, hex('#e03c8a')], [1, hex('#8a5cf0')]];
 function depthColor(t) { for (let i = 1; i < DEPTH_RAMP.length; i++) if (t <= DEPTH_RAMP[i][0]) { const a = DEPTH_RAMP[i - 1], b = DEPTH_RAMP[i]; return mix3(a[1], b[1], (t - a[0]) / (b[0] - a[0])); } return DEPTH_RAMP[3][1]; }
 
@@ -2329,7 +2331,7 @@ function crossQuakes(t0, t1) {
 }
 
 // ---- eruption plumes ----
-const plumes = []; for (let i = 0; i < 220; i++) plumes.push({ life: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, big: 1 });
+const plumes = []; for (let i = 0; i < 380; i++) plumes.push({ life: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, big: 1 });
 let plumeI = 0;
 function updatePlumes(dt, playing) {
   if (!HAS3D) return; const P = plumePts;
@@ -2355,23 +2357,72 @@ function updatePlumes(dt, playing) {
   if (any || P.dirty) { for (const k of ['position', 'aCol', 'aSize']) P.geo.attributes[k].needsUpdate = true; P.dirty = any; needsRender = true; }
 }
 
-// ---- embers: glowing sparks thrown from erupting volcanoes, with a soft halo over each summit ----
-const sparkPts = HAS3D ? makePoints(180, true) : null, sparks = []; for (let i = 0; i < 160; i++) sparks.push({ life: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0 });
-let sparkI = 0;
+// ---- lava: fountains, embers, rising magma blobs and a light that glows over the busiest volcano ----
+const sparkPts = HAS3D ? makePoints(330, true) : null, sparks = []; for (let i = 0; i < 300; i++) sparks.push({ life: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0 });
+const blobPts = HAS3D ? makePoints(300, true) : null, blobs = []; for (let i = 0; i < 100; i++) blobs.push({ life: 0, s: 0, sp: 0, x0: 0, y0: 0, x1: 0, y1: 0, z: 0, ph: 0, size: .1, k: 1 });
+let sparkI = 0, blobI = 0; const srcAcc = new Map(), oqm = newCol(), oqm2 = newCol();
+const lavaLight = HAS3D ? new THREE.PointLight(0xff6a1a, 0, 7, 2) : null; if (lavaLight) scene.add(lavaLight);
+function resetFx() { for (const b of blobs) b.life = 0; for (const s of sparks) s.life = 0; for (const p of plumes) p.life = 0; srcAcc.clear(); for (const r of rings) r.m.visible = false; }
+function spawnPlume(x, y, z, big) { const p = plumes[plumeI++ % plumes.length]; p.life = 1; p.x = x + (Math.random() - .5) * .08; p.y = y; p.z = z + (Math.random() - .5) * .08; p.vx = (Math.random() - .3) * .14; p.vy = .4 + Math.random() * .5 * big; p.vz = (Math.random() - .5) * .1; p.big = .6 + big; }
+function erupt(x, y, z, k) { // a burst of lava and ash where a rising blob reaches the surface
+  if (!HAS3D) return;
+  for (let n = 0; n < Math.round(14 * k); n++) { const s = sparks[sparkI++ % sparks.length], a = Math.random() * 6.28, sp = .1 + Math.random() * .45 * k; s.life = 1; s.x = x; s.y = y + .03; s.z = z; s.vx = Math.cos(a) * sp; s.vz = Math.sin(a) * sp; s.vy = .9 + Math.random() * 1.5 * k; }
+  for (let n = 0; n < Math.round(5 * k); n++) spawnPlume(x, y + .05, z, k);
+}
+function magmaSources(Fr) {
+  const out = [], zc = zCut(); if (!S.show.magma) return out;
+  if (Fr.scn === 'subduction' || Fr.scn === 'collision') {
+    const live = (Fr.cont ? 1 - sstep(0, .6, Fr.thick) : 1) * Fr.q.magma; if (live < .05) return out;
+    for (const v of Fr.vol) { const xs = v.x - .2; Fr.col(xs, zc, Fr, oqm); const y0 = oqm.B[6] - .02; Fr.col(v.x, v.z, Fr, oqm2); out.push({ key: 'v' + Math.round(v.z * 10), x0: xs, y0, x1: v.x, y1: oqm2.B[1], z: v.z, rate: (.8 + v.act * 3) * live, size: .12 }); }
+  } else if (Fr.scn === 'divergent') {
+    if (Fr.aa < .3) return out;
+    const live = Fr.q.magma * Fr.aa;
+    for (const sg of [-1, 1]) { Fr.col(0, zc, Fr, oqm); out.push({ key: 'r' + sg, x0: sg * .12, y0: oqm.B[5] - .35, x1: sg * .04, y1: oqm.B[1], z: zc - .1, rate: (1.2 + Fr.ridgeAct * 2.5) * live, size: .12 }); }
+    for (const v of Fr.vol) if (v.h > .03) { Fr.col(v.x, v.z, Fr, oqm2); out.push({ key: 'd' + Math.round(v.z * 10), x0: v.x * .5, y0: oqm2.B[4] - .35, x1: v.x, y1: oqm2.B[1], z: v.z, rate: (.6 + v.act * 2.5) * live, size: .1 }); }
+  } else if (Fr.scn === 'hotspot') {
+    const yv = Fr.vol.find(v => v.age < 1.2) || Fr.vol[0]; Fr.col(Fr.px, Fr.pz, Fr, oqm2);
+    out.push({ key: 'plume', x0: Fr.px, y0: Fr.base + .06, x1: Fr.px, y1: oqm2.B[1], z: Fr.pz, rate: 6 * Fr.q.magma, size: .2, head: true });
+    out.push({ key: 'plume2', x0: Fr.px - .12, y0: Fr.base + .3, x1: Fr.px + .02, y1: oqm2.B[1], z: Fr.pz, rate: 3.2 * Fr.q.magma, size: .13, head: true });
+  }
+  return out;
+}
+function updateMagma(dt, playing) {
+  if (!HAS3D) return; const P = blobPts, zc = zCut() + .05; let any = false;
+  if (playing) for (const sc of magmaSources(F)) {
+    const acc = (srcAcc.get(sc.key) || 0) + sc.rate * dt * (.6 + .4 * S.speed);
+    let n = Math.floor(acc); srcAcc.set(sc.key, acc - n);
+    while (n-- > 0) { const b = blobs[blobI++ % blobs.length]; Object.assign(b, { life: 1, s: 0, x0: sc.x0 + (Math.random() - .5) * (sc.head ? .12 : .06), y0: sc.y0, x1: sc.x1, y1: sc.y1, z: sc.z, ph: Math.random() * 6.28, size: sc.size * (.8 + Math.random() * .5), sp: (.32 + Math.random() * .3) / Math.max(.5, Math.hypot(sc.x1 - sc.x0, sc.y1 - sc.y0)) }); }
+  }
+  for (let i = 0; i < blobs.length; i++) {
+    const b = blobs[i]; for (let q = 0; q < 3; q++) { const n = i * 3 + q; if (b.life <= 0) { P.col[n * 4 + 3] = 0; continue; } }
+    if (b.life <= 0) continue;
+    if (playing) { b.s += b.sp * dt; if (b.s >= 1) { b.life = 0; erupt(b.x1, b.y1, b.z, .35 + b.size * 3); continue; } }
+    any = true;
+    for (let q = 0; q < 3; q++) {
+      const n = i * 3 + q, s = Math.max(0, b.s - q * .028), e = s * s * (3 - 2 * s), wob = Math.sin(s * 11 + b.ph) * .03 * (1 - s);
+      P.pos[n * 3] = b.x0 + (b.x1 - b.x0) * e + wob; P.pos[n * 3 + 1] = b.y0 + (b.y1 - b.y0) * s; P.pos[n * 3 + 2] = zc;
+      const hot = s; P.col[n * 4] = 1; P.col[n * 4 + 1] = .22 + .7 * hot; P.col[n * 4 + 2] = .04 + .45 * hot * hot; P.col[n * 4 + 3] = (q ? .5 / q : 1) * Math.min(1, s * 8 + .25) * .9;
+      P.size[n] = b.size * (1 + .8 * (1 - s)) * (1 - q * .22);
+    }
+  }
+  for (let n = blobs.length * 3; n < 300; n++) P.col[n * 4 + 3] = 0;
+  for (const k of ['position', 'aCol', 'aSize']) P.geo.attributes[k].needsUpdate = true; if (any || P.was) needsRender = true; P.was = any;
+}
 function updateSparks(dt, playing) {
-  if (!HAS3D) return; const P = sparkPts; let any = false;
-  if (S.show.magma && F.vol.length) for (const v of F.vol) if (v.act > .25 && v.z < zCut() + .2) {
-    if (playing) { const n = Math.floor(v.act * 9 * dt * 60 / 4 + Math.random()); for (let k = 0; k < n; k++) { const s = sparks[sparkI++ % sparks.length]; F.col(v.x, v.z, F, oq); s.life = 1; s.x = v.x; s.y = oq.B[1] + .03; s.z = v.z; const a = Math.random() * 6.28, sp = .2 + Math.random() * .5; s.vx = Math.cos(a) * sp * .5; s.vz = Math.sin(a) * sp * .5; s.vy = .7 + Math.random() * .9 * v.act; } }
+  if (!HAS3D) return; const P = sparkPts; let any = false, best = null;
+  if (S.show.magma && F.vol.length) for (const v of F.vol) if (v.act > .2 && v.z < zCut() + .2) {
+    if (!best || v.act > best.act) best = v;
+    if (playing) { const n = Math.floor(v.act * 16 * dt * 60 / 4 + Math.random()); for (let k = 0; k < n; k++) { const s = sparks[sparkI++ % sparks.length]; F.col(v.x, v.z, F, oq); s.life = 1; s.x = v.x + (Math.random() - .5) * .05; s.y = oq.B[1] + .03; s.z = v.z + (Math.random() - .5) * .05; const a = Math.random() * 6.28, sp = .12 + Math.random() * .55; s.vx = Math.cos(a) * sp * .55; s.vz = Math.sin(a) * sp * .55; s.vy = .9 + Math.random() * 1.3 * v.act; } }
   }
   for (let i = 0; i < sparks.length; i++) {
-    const s = sparks[i], c = i * 4; if (s.life <= 0) { P.col[i * 4 + 3] = 0; continue; }
-    s.life -= dt * 1.1; any = true; s.vy -= 2.2 * dt; s.x += s.vx * dt; s.y += s.vy * dt; s.z += s.vz * dt;
+    const s = sparks[i]; if (s.life <= 0) { P.col[i * 4 + 3] = 0; continue; }
+    s.life -= dt * .95; any = true; s.vy -= 2.4 * dt; s.x += s.vx * dt; s.y += s.vy * dt; s.z += s.vz * dt;
     P.pos[i * 3] = s.x; P.pos[i * 3 + 1] = s.y; P.pos[i * 3 + 2] = s.z; const l = Math.max(0, s.life);
-    P.col[i * 4] = 1; P.col[i * 4 + 1] = .5 + .35 * l; P.col[i * 4 + 2] = .15 + .2 * l; P.col[i * 4 + 3] = l * .95; P.size[i] = .03 + .02 * l;
+    P.col[i * 4] = 1; P.col[i * 4 + 1] = .2 + .75 * l * l; P.col[i * 4 + 2] = .04 + .5 * l * l * l; P.col[i * 4 + 3] = Math.min(1, l * 1.4); P.size[i] = .028 + .03 * l;
   }
-  // halos
-  let h = 160; for (const v of F.vol) { if (h >= 180) break; const on = S.show.magma && v.act > .05 && v.z < zCut() + .2; if (!on) continue; F.col(v.x, v.z, F, oq); P.pos[h * 3] = v.x; P.pos[h * 3 + 1] = oq.B[1] + .12; P.pos[h * 3 + 2] = v.z; P.col[h * 4] = 1; P.col[h * 4 + 1] = .45; P.col[h * 4 + 2] = .12; P.col[h * 4 + 3] = .5 * v.act; P.size[h] = .7 * (.6 + v.act); h++; any = true; }
-  for (; h < 180; h++) P.col[h * 4 + 3] = 0;
+  let h = 300; for (const v of F.vol) { if (h >= 330) break; const on = S.show.magma && v.act > .05 && v.z < zCut() + .2; if (!on) continue; F.col(v.x, v.z, F, oq); P.pos[h * 3] = v.x; P.pos[h * 3 + 1] = oq.B[1] + .1; P.pos[h * 3 + 2] = v.z; P.col[h * 4] = 1; P.col[h * 4 + 1] = .42; P.col[h * 4 + 2] = .1; P.col[h * 4 + 3] = .55 * v.act; P.size[h] = .95 * (.6 + v.act); h++; any = true; }
+  for (; h < 330; h++) P.col[h * 4 + 3] = 0;
+  if (lavaLight) { if (best) { F.col(best.x, best.z, F, oq); lavaLight.position.set(best.x, oq.B[1] + .5, best.z); lavaLight.intensity = best.act * 3.2 * (F.q.magma || 1); any = true; } else lavaLight.intensity = 0; }
   for (const k of ['position', 'aCol', 'aSize']) P.geo.attributes[k].needsUpdate = true; if (any || P.was) needsRender = true; P.was = any;
 }
 
@@ -2737,7 +2788,7 @@ function step(now) {
   if (dirty || geoDirty) { geoDirty = false; applyModel(); }
   else if (wallVisKey !== visKey()) applyModel();
   updateRings(now);
-  updatePlumes(dt, S.playing); updateSparks(dt, S.playing); updateTracers(S.playing ? dt : 0);
+  updatePlumes(dt, S.playing); updateSparks(dt, S.playing); updateMagma(dt, S.playing); updateTracers(S.playing ? dt : 0);
   if (S.playing) needsRender = true;
   if (needsRender) { needsRender = false; render(); }
   if (Math.abs(S.t - lastUIt) > 1e-6) { lastUIt = S.t; syncTimeUI(); }
@@ -2999,7 +3050,7 @@ function setScenario(scn, o = {}) {
   S.scn = scn; S.ex = null; if (!o.keepT) S.t = 0; if (!o.keepPlay) setPlaying(false);
   $$('#scnSeg [data-scn]').forEach(b => { const on = b.dataset.scn === scn; b.classList.toggle('segment__item--on', on); b.setAttribute('aria-checked', on); });
   placeScnThumb(); syncDrop();
-  F = makeFrame(); buildBlock(); genQuakes(); buildArrows();
+  F = makeFrame(); buildBlock(); genQuakes(); buildArrows(); if (HAS3D) resetFx();
   $('#capEyebrow').innerHTML = SCN_NAME[scn]() + `<span class="cap-sub"> · ${SCN_SUB[scn]()}</span>`;
   const inf = INFO[scn](); $('#abEyebrow').textContent = L('Now showing', 'Ahora se muestra'); $('#abTitle').textContent = SCN_NAME[scn]() + ' · ' + SCN_SUB[scn]();
   $('#abText').innerHTML = inf.text; $('#abNotice').innerHTML = inf.notice.map(n => `<li>${n}</li>`).join('');
@@ -3560,7 +3611,7 @@ async function snapshot(scn, t, w, h, withPins) {
   for (const ww of waterWalls) { ww.mesh.visible = true; ww.stale = true; }
   // draw all four faces once, then pick the view
   F = makeFrame(); walls.forEach((wl, i) => { wl.update(F); if (waterWalls[i]) waterWalls[i].update(F); wallLines[i].update(F, boundaryIdx); wallLines[i].visible = true; });
-  updateQuakes(); for (const a of arrows) a.g.visible = false; tracerPts.pts.visible = false; plumePts.pts.visible = false; sparkPts.pts.visible = false;
+  updateQuakes(); for (const a of arrows) a.g.visible = false; tracerPts.pts.visible = false; plumePts.pts.visible = false; sparkPts.pts.visible = false; blobPts.pts.visible = false;
   vw = w; vh = h; renderer.setPixelRatio(1); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); if (camera.view) camera.clearViewOffset();
   const o = VIEWS.oblique; Object.assign(cam, { az: o.az, el: o.el, r: fitR() * 1.02, tx: 0, tz: 0, ty: F.base * .42 + .1 });
   const p = camera.position, cp = Math.cos(cam.el); p.set(cam.r * Math.sin(cam.az) * cp, cam.ty + cam.r * Math.sin(cam.el), cam.r * Math.cos(cam.az) * cp); camera.lookAt(0, cam.ty, 0);
@@ -3578,7 +3629,7 @@ async function snapshot(scn, t, w, h, withPins) {
   // put everything back
   S.scn = keep.scn; S.t = keep.t; S.cut = keep.cut; Object.assign(S.show, keep.show); S.view = keep.view; S.playing = keep.playing;
   if (scn !== keep.scn) { F = makeFrame(); buildBlock(); buildArrows(); }
-  Object.assign(cam, keep.cam); Object.assign(camT, keep.camT); vw = keep.vw; vh = keep.vh; sizeView(); for (const a of arrows) a.g.visible = S.show.arrows; tracerPts.pts.visible = true; plumePts.pts.visible = true; sparkPts.pts.visible = true;
+  Object.assign(cam, keep.cam); Object.assign(camT, keep.camT); vw = keep.vw; vh = keep.vh; sizeView(); for (const a of arrows) a.g.visible = S.show.arrows; tracerPts.pts.visible = true; plumePts.pts.visible = true; sparkPts.pts.visible = true; blobPts.pts.visible = true;
   appliedKey = ''; geoDirty = true; needsRender = true;
   const res = { canvas: c, pins }; WS.snaps.set(key, res); return res;
 }
@@ -4392,7 +4443,7 @@ addEventListener('hashchange', () => { if (openSharedFromHash()) { setScenario(S
 if (HAS3D) requestAnimationFrame(frame);
 let errShown = false;
 window.addEventListener('error', () => { if (!errShown) { errShown = true; toast('Something went wrong. Reload the page if things look stuck.'); } });
-window.__tect = { cam, camT, hover: () => { if (hoverRaf) cancelAnimationFrame(hoverRaf); hoverTick(); }, prof: () => { const o = Object.assign({}, PROF); for (const k in PROF) delete PROF[k]; return o; }, step: n => { let t = performance.now(); for (let i = 0; i < (n || 1); i++) { t += 33; step(t); } }, S, setScenario, seek, setPlaying, setView, applyExample, setSpeed: v => setSpeed2(v), frame: () => F, col: (x, z) => { const o = newCol(); F.col(x, z, F, o); return o; }, render: () => { geoDirty = true; needsRender = true; } };
+window.__tect = { wallColor, newCol, scene, renderer, camera, lavaLight, groundMat, wallMat, cam, camT, hover: () => { if (hoverRaf) cancelAnimationFrame(hoverRaf); hoverTick(); }, prof: () => { const o = Object.assign({}, PROF); for (const k in PROF) delete PROF[k]; return o; }, step: n => { let t = performance.now(); for (let i = 0; i < (n || 1); i++) { t += 33; step(t); } }, S, setScenario, seek, setPlaying, setView, applyExample, setSpeed: v => setSpeed2(v), frame: () => F, col: (x, z) => { const o = newCol(); F.col(x, z, F, o); return o; }, render: () => { geoDirty = true; needsRender = true; } };
 
 })();
 </script>
