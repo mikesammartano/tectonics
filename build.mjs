@@ -24,14 +24,21 @@ const png = async (svg, width) => new (await import('@resvg/resvg-js')).Resvg(sv
 
 const DEFS = `<linearGradient id="bg" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#3b95ff"/><stop offset=".55" stop-color="#0071e3"/><stop offset="1" stop-color="#0058c4"/></linearGradient>
   <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>`;
-// the mark in its own 24-unit space: the top plate steps down, the lower plate dives under it
-const glyph = (sw = 1.9) => `<path d="M3.5 8.5H11l4 4.5h5.5" fill="none" stroke="#fff" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M3.5 15H8l4 4.5h8.5" fill="none" stroke="#fff" stroke-opacity=".62" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>`;
-function icon({ size = 512, fill = 0.74, rx = 0.22, sw = 1.9 } = {}) {
-  const k = (size * fill) / 17, tx = size / 2 - 12 * k, ty = size / 2 - 13.7 * k;
+// the mark in its own 24-unit space: three strata bend down together like contour lines, with a quake focus between them
+const STRATA = ['M3.5 5.5H9.2C12.3 5.5 13.8 7.5 15.4 10.2L19 16.4', 'M3.5 10.1H7.2C9.9 10.1 11.1 11.7 12.4 14L14.6 17.9', 'M3.5 14.7H5.2C6.9 14.7 7.8 15.9 8.7 17.5L10.2 20.2'];
+const glyph = (sw = 2) => `<g fill="none" stroke="#fff" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"><path d="${STRATA[0]}"/><path d="${STRATA[1]}" stroke-opacity=".7"/><path d="${STRATA[2]}" stroke-opacity=".42"/></g><circle cx="10.7" cy="8.7" r="1" fill="#fff"/>`;
+const GC = [11.25, 12.85]; // centre of the glyph
+function icon({ size = 512, fill = 0.74, rx = 0.22, sw = 2, flat = false } = {}) {
+  const k = (size * fill) / 17, tx = size / 2 - GC[0] * k, ty = size / 2 - GC[1] * k;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}"><defs>${DEFS}</defs>
-  <rect width="${size}" height="${size}" rx="${size * rx}" fill="url(#bg)"/><rect width="${size}" height="${size}" rx="${size * rx}" fill="url(#sheen)"/>
+  <rect width="${size}" height="${size}" rx="${size * rx}" fill="${flat ? '#0071e3' : 'url(#bg)'}"/>${flat ? '' : `<rect width="${size}" height="${size}" rx="${size * rx}" fill="url(#sheen)"/>`}
   <g transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(4)})">${glyph(sw)}</g></svg>`;
+}
+// wordmark lockups, like topo's: the tile, then the name in the same heavy, tightly tracked system type
+function lockup(ink, dark) {
+  const tile = icon({ size: 560, fill: 0.72, rx: 0.24, flat: true });
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="900" viewBox="0 0 3000 900"><g transform="translate(120 170)">${tile.replace(/<svg[^>]*>/, '<g>').replace('</svg>', '</g>')}</g>
+  <text x="800" y="590" font-family="Helvetica Neue" font-weight="700" font-size="380" letter-spacing="-17" fill="${ink}">tectonics</text></svg>`;
 }
 // link-preview card: a flat block diagram of a subduction zone, in the colours of the app
 const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><defs>${DEFS}
@@ -66,7 +73,7 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" vi
 </g>
 <g fill="#ffb020" stroke="#fff" stroke-width="2"><circle cx="870" cy="380" r="6"/><circle cx="900" cy="402" r="5"/><circle cx="930" cy="424" r="7"/><circle cx="822" cy="344" r="5"/><circle cx="960" cy="446" r="5"/></g></g>
 <g transform="translate(80 92)"><rect width="104" height="104" rx="24" fill="url(#bg)"/><rect width="104" height="104" rx="24" fill="url(#sheen)"/>
-  <g transform="translate(${52 - 12 * 4.6} ${52 - 13.7 * 4.6}) scale(4.6)">${glyph(2)}</g></g>
+  <g transform="translate(${52 - GC[0] * 4.6} ${52 - GC[1] * 4.6}) scale(4.6)">${glyph(2)}</g></g>
 <text x="76" y="316" font-family="Helvetica Neue" font-weight="700" font-size="94" letter-spacing="-1" fill="#1d1d1f">Tectonics</text>
 <text x="80" y="376" font-family="Helvetica Neue" font-size="32" fill="#424245">Plate boundaries and hot spots in 3D.</text>
 <text x="80" y="418" font-family="Helvetica Neue" font-size="32" fill="#424245">Play them, slice them, print them.</text>
@@ -85,6 +92,9 @@ if (ART) {
   writeFileSync('static/og.png', await png(og, 1200));
   mkdirSync('logo', { recursive: true });
   writeFileSync('logo/tectonics-mark.png', await png(icon({ size: 1024 }), 1024));
+  writeFileSync('logo/tectonics-logo-blue.png', await png(lockup('#0071e3'), 2873));
+  writeFileSync('logo/tectonics-logo-dark.png', await png(lockup('#f5f5f7'), 2873));
+  writeFileSync('logo/tectonics-logo-light.png', await png(lockup('#1d1d1f'), 2873));
   writeFileSync('logo/tectonics-og.png', await png(og, 1200));
   console.log('drew static/ artwork and logo/');
   process.exit(0);
