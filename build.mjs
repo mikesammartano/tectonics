@@ -8,6 +8,7 @@
 // - absolute URLs (canonical, og:url, og:image, sitemap) come from SITE_URL or "homepage" in package.json
 import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, cpSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { transformSync } from 'esbuild';
 
 const ART = process.argv.includes('--art');
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
@@ -133,6 +134,11 @@ const NOSCRIPT = `<noscript><div style="max-width:40rem;margin:0 auto;padding:2r
 <p>Tectonics needs JavaScript and WebGL to draw the 3D models. <a href="/privacy">Privacy</a></p></div></noscript>`;
 html = html.replace('<body>\n', '<body>\n' + NOSCRIPT + '\n');
 html = html.replace('</body>', '<script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));</script>\n</body>');
+// minify the page's own CSS and script (the file in the repo stays readable)
+const before = html.length;
+html = html.replace(/<style>([\s\S]*?)<\/style>/, (m, css) => `<style>${transformSync(css, { loader: 'css', minify: true }).code.trim()}</style>`);
+html = html.replace(/<script>\n"use strict";([\s\S]*?)\n<\/script>/, (m, js) => `<script>${transformSync('"use strict";' + js, { minify: true, target: 'es2020', legalComments: 'none' }).code.trim()}</script>`);
+console.log(`minified page: ${(before / 1024).toFixed(0)} KB to ${(html.length / 1024).toFixed(0)} KB`);
 writeFileSync('dist/index.html', html);
 const build = createHash('sha1').update(html).digest('hex').slice(0, 8) + '-' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
 writeFileSync('dist/sw.js', readFileSync('dist/sw.js', 'utf8').replace('__BUILD__', build));

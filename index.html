@@ -4844,7 +4844,8 @@ addEventListener('hashchange', () => { if (openSharedFromHash()) { setScenario(S
 if (HAS3D) requestAnimationFrame(frame);
 let errShown = false;
 window.addEventListener('error', () => { if (!errShown) { errShown = true; toast('Something went wrong. Reload the page if things look stuck.'); } });
-window.__tect = { wallColor, newCol, scene, renderer, camera, lavaLight, groundMat, wallMat, cam, camT, hover: () => { if (hoverRaf) cancelAnimationFrame(hoverRaf); hoverTick(); }, prof: () => { const o = Object.assign({}, PROF); for (const k in PROF) delete PROF[k]; return o; }, step: n => { let t = performance.now(); for (let i = 0; i < (n || 1); i++) { t += 33; step(t); } }, S, setScenario, seek, setPlaying, setView, applyExample, setSpeed: v => setSpeed2(v), frame: () => F, col: (x, z) => { const o = newCol(); F.col(x, z, F, o); return o; }, render: () => { geoDirty = true; needsRender = true; } };
+// test hooks, only on localhost or with ?debug in the address
+if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]debug\b/.test(location.search)) window.__tect = { wallColor, newCol, scene, renderer, camera, lavaLight, groundMat, wallMat, cam, camT, hover: () => { if (hoverRaf) cancelAnimationFrame(hoverRaf); hoverTick(); }, prof: () => { const o = Object.assign({}, PROF); for (const k in PROF) delete PROF[k]; return o; }, step: n => { let t = performance.now(); for (let i = 0; i < (n || 1); i++) { t += 33; step(t); } }, S, setScenario, seek, setPlaying, setView, applyExample, setSpeed: v => setSpeed2(v), frame: () => F, col: (x, z) => { const o = newCol(); F.col(x, z, F, o); return o; }, render: () => { geoDirty = true; needsRender = true; } };
 
 })();
 </script>
