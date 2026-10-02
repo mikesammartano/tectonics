@@ -807,6 +807,7 @@ img{max-width:100%}
 /* caption: which boundary and which stage, top left */
 .stagecap{position:absolute; left:1rem; top:1rem; z-index:3; display:flex; flex-direction:column; gap:.3125rem; max-width:min(25rem,calc(100% - 7rem)); padding:.5625rem .875rem .625rem; border-radius:var(--r-md); background:var(--card-glass); border:1px solid var(--stage-edge); -webkit-backdrop-filter:var(--card-blur); backdrop-filter:var(--card-blur); pointer-events:none}
 .stagecap .t-eyebrow{color:var(--stage-ink-meta)}
+.stagecap b,.stagecap span.sc-note{text-wrap:balance}
 .stagecap b{font:600 .9375rem/1.2 var(--font); letter-spacing:-.01em; color:var(--stage-ink)}
 .stagecap span.sc-note{font:500 .75rem/1.35 var(--font); color:var(--stage-ink-meta)}
 .stagecap.is-swap b{animation:capIn .4s var(--ease)}
@@ -1238,8 +1239,7 @@ body.present .stagebar,body.present .pbar{transition:left var(--panel-t) var(--p
             <button class="pbar__b pbar__speed" id="pbSpeed" type="button" title="Playback speed ([ and ])" aria-label="Playback speed">1×</button>
             <button class="pbar__b" id="pbLoop" type="button" aria-pressed="false" aria-label="Loop" title="Loop"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M24,128A72.08,72.08,0,0,1,96,56H204.69L194.34,45.66a8,8,0,0,1,11.32-11.32l24,24a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L204.69,72H96a56.06,56.06,0,0,0-56,56,8,8,0,0,1-16,0Zm200-8a8,8,0,0,0-8,8,56.06,56.06,0,0,1-56,56H51.31l10.35-10.34a8,8,0,0,0-11.32-11.32l-24,24a8,8,0,0,0,0,11.32l24,24a8,8,0,0,0,11.32-11.32L51.31,200H160a72.08,72.08,0,0,0,72-72A8,8,0,0,0,224,120Z"/></svg></button>
           </div>
-          <button class="map-info map-info--left" id="modelInfo" type="button" aria-expanded="false" aria-controls="readouts" title="Time, plate speed, distance moved and quakes"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></svg></button>
-          <button class="map-info" id="keyInfo" type="button" aria-expanded="false" aria-controls="keycard" title="What the colours are"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></svg></button>
+          <button class="map-info map-info--left" id="modelInfo" type="button" aria-expanded="false" aria-controls="readouts keycard" title="Time, speed, quakes and what the colours are"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></svg></button>
         </div>
       </div>
     </section>
@@ -3183,7 +3183,7 @@ function setScenario(scn, o = {}) {
   $$('#scnSeg [data-scn]').forEach(b => { const on = b.dataset.scn === scn; b.classList.toggle('segment__item--on', on); b.setAttribute('aria-checked', on); });
   placeScnThumb(); syncDrop();
   F = makeFrame(); buildBlock(); genQuakes(); buildArrows(); if (HAS3D) resetFx();
-  $('#capEyebrow').innerHTML = SCN_NAME[scn]() + `<span class="cap-sub"> · ${SCN_SUB[scn]()}</span>`;
+  $('#capEyebrow').textContent = SCN_NAME[scn]();
   const inf = INFO[scn](); $('#abEyebrow').textContent = L('Now showing', 'Ahora se muestra'); $('#abTitle').textContent = SCN_NAME[scn]() + ' · ' + SCN_SUB[scn]();
   $('#abText').innerHTML = inf.text; $('#abNote').textContent = NOTES[scn](); $('#abNotice').innerHTML = inf.notice.map(n => `<li>${n}</li>`).join('');
   $('#profTitle').textContent = L('Surface and crust along the section', 'Superficie y corteza a lo largo del corte');
@@ -3227,12 +3227,10 @@ function syncViewSeg() { $$('#viewSeg [data-view]').forEach(b => { const on = b.
 $('#viewSeg').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (b) { setView(b.dataset.view); saveState(); } });
 function nextView() { setView(VIEW_ORDER[(VIEW_ORDER.indexOf(S.view) + 1) % VIEW_ORDER.length]); toast(L({ oblique: 'Angled view', front: 'Front view', side: 'Side view', top: 'Top view' }[S.view], { oblique: 'Vista en ángulo', front: 'Vista frontal', side: 'Vista lateral', top: 'Vista superior' }[S.view])); saveState(); }
 
-// info buttons: remembered
-for (const [btnId, panel, key] of [['#keyInfo', '#keycard', 'legend'], ['#modelInfo', '#readouts', 'readouts']]) {
-  const btn = $(btnId), set = open => { $(panel).classList.toggle('is-open', open); btn.setAttribute('aria-expanded', open); store.set(key, open ? '1' : '0'); };
+// one info button opens the readouts and the colour key together; the choice is remembered
+{ const btn = $('#modelInfo'), set = open => { $('#readouts').classList.toggle('is-open', open); $('#keycard').classList.toggle('is-open', open); btn.setAttribute('aria-expanded', open); store.set('info', open ? '1' : '0'); };
   btn.addEventListener('click', e => { e.stopPropagation(); set(btn.getAttribute('aria-expanded') !== 'true'); });
-  if (store.get(key, '0') === '1') set(true);
-}
+  if (store.get('info', '0') === '1') set(true); }
 
 // ---------------- the panel ----------------
 let railTab = 'controls';
@@ -4700,6 +4698,7 @@ Object.assign(ES, {
 "Tectonics": "Tectonics",
 "Read more": "Leer más",
 "Name": "Nombre",
+"Time, speed, quakes and what the colours are": "Tiempo, velocidad, sismos y qué significan los colores",
 "Map": "Mapa",
 "See where these features are on Earth, with satellite imagery": "Mira dónde están estos rasgos en la Tierra, con imágenes de satélite",
 "Zoom": "Zoom",
