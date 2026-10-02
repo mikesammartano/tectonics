@@ -1152,6 +1152,9 @@ body.present .stagebar,body.present .pbar{transition:left var(--panel-t) var(--p
 @keyframes sweep{to{background-size:100% 100%}}
 body.embed .splash{display:none!important}
 @media (prefers-reduced-motion: reduce){ .splash *,.splash{animation:none!important} .splash__rings{display:none} .splash__hl{background-size:100% 100%} }
+.splash__word,.splash__tag{position:relative; z-index:2}
+.splash__rings i{border-color:rgb(var(--input-rgb) / .38)}
+@keyframes ripple{0%{opacity:0; transform:scale(.3)}18%{opacity:.6}100%{opacity:0; transform:scale(2.2)}}
 </style>
 </head>
 <body>
@@ -1407,7 +1410,7 @@ body.embed .splash{display:none!important}
 
 <div class="overlay welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
   <div class="welcome__panel" id="welcomePanel" tabindex="-1">
-    <div class="welcome__head"><span class="brand__mark welcome__mark">{{mark}}</span><div><h2 id="welcomeTitle">Welcome to Tectonics</h2><p>Plate boundaries and hot spots as 3D block diagrams you can play, scrub and slice open.</p></div></div>
+    <div class="welcome__head"><span class="brand__mark welcome__mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(.75 -.85)"><path class="ring r1" stroke-width="2" d="M3.5 5.5H9.2C12.3 5.5 13.8 7.5 15.4 10.2L19 16.4"/><path class="ring r2" stroke-width="2" stroke-opacity=".7" d="M3.5 10.1H7.2C9.9 10.1 11.1 11.7 12.4 14L14.6 17.9"/><path class="ring r3" stroke-width="2" stroke-opacity=".42" d="M3.5 14.7H5.2C6.9 14.7 7.8 15.9 8.7 17.5L10.2 20.2"/><circle class="ring r4" cx="10.7" cy="8.7" r="1" fill="currentColor" stroke="none"/></g></svg></span><div><h2 id="welcomeTitle">Welcome to Tectonics</h2><p>Plate boundaries and hot spots as 3D block diagrams you can play, scrub and slice open.</p></div></div>
     <ul class="welcome__list">
       <li><span class="welcome__icon"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"/></svg></span><span><b>Play millions of years.</b> Press play, or drag the timeline to scrub through each boundary.</span></li>
       <li><span class="welcome__icon"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M232,48V88a8,8,0,0,1-16,0V56H184a8,8,0,0,1,0-16h40A8,8,0,0,1,232,48ZM72,200H40V168a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16Zm152-40a8,8,0,0,0-8,8v32H184a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V168A8,8,0,0,0,224,160ZM32,96a8,8,0,0,0,8-8V56H72a8,8,0,0,0,0-16H32a8,8,0,0,0-8,8V88A8,8,0,0,0,32,96ZM188,167l-56,32a8,8,0,0,1-7.94,0L68,167A8,8,0,0,1,64,160V96a8,8,0,0,1,4-7l56-32a8,8,0,0,1,7.94,0l56,32a8,8,0,0,1,4,7v64A8,8,0,0,1,188,167ZM88.12,96,128,118.79,167.88,96,128,73.21ZM80,155.36l40,22.85V132.64L80,109.79Zm96,0V109.79l-40,22.85v45.57Z"/></svg></span><span><b>Turn it, slice it.</b> Drag to rotate, scroll to zoom, and move the cut to look inside.</span></li>
