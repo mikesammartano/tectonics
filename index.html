@@ -1151,6 +1151,46 @@ body.embed .splash{display:none!important}
 .splash__rings i{border-color:rgb(var(--input-rgb) / .38)}
 @keyframes ripple{0%{opacity:0; transform:scale(.3)}18%{opacity:.6}100%{opacity:0; transform:scale(2.2)}}
 
+
+/* ---- design pass: replicate the topo design system ---- */
+.pbrand{position:fixed; top:1.25rem; left:1.25rem; z-index:3; display:inline-flex; align-items:center; gap:.5rem; padding:.375rem .875rem .375rem .375rem; border-radius:var(--r-pill); background:var(--stage-glass); border:1px solid var(--stage-edge); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); color:var(--ink)}
+.pbrand .brand__mark{width:1.75rem; height:1.75rem; border-radius:var(--r-pill)}
+body.present{--stage-shift:0px} body.present.shift-left{--stage-shift:-22vw} body.present.shift-right{--stage-shift:22vw}
+.pinfo-btn{position:fixed; top:1.25rem; right:1.25rem; z-index:7; width:2.5rem; height:2.5rem; border-radius:var(--r-pill); display:grid; place-items:center; background:var(--card-glass); border:1px solid var(--stage-edge); color:var(--stage-ink-meta); -webkit-backdrop-filter:var(--card-blur); backdrop-filter:var(--card-blur); cursor:pointer; transition:background var(--fast) var(--ease),color var(--fast) var(--ease),transform .3s var(--spring)}
+.pinfo-btn svg{width:1.375rem; height:1.375rem}
+.pinfo-btn:hover{color:var(--stage-ink); background:var(--hover-strong)} .pinfo-btn:active{transform:scale(.92)}
+.pinfo-btn[aria-expanded="true"]{background:var(--input); border-color:transparent; color:var(--on-accent); box-shadow:0 0 0 .25rem var(--input-wash)}
+.pinfo-btn:focus-visible{outline:2px solid var(--input); outline-offset:2px}
+.pinfo{position:fixed; top:4.5rem; right:1.25rem; z-index:6; display:flex; flex-direction:column; width:max-content; min-width:19rem; border-radius:var(--r-lg); background:var(--card-glass); border:1px solid var(--stage-edge); -webkit-backdrop-filter:var(--card-blur); backdrop-filter:var(--card-blur); box-shadow:var(--shadow-overlay); overflow:hidden; transform-origin:100% 0; transition:opacity .2s var(--ease),transform .5s var(--spring)}
+.pinfo:not(.is-open){opacity:0; visibility:hidden; transform:translate(.5rem,-.75rem) scale(.94); transition:opacity .16s var(--ease),transform .2s var(--ease),visibility 0s linear .2s}
+#view3d .pinfo .readouts{position:static!important; width:100%; border:0; border-radius:0; background:none; box-shadow:none; opacity:1!important; visibility:hidden; transform:none!important; transition:none}
+#view3d .pinfo .readout{flex:1; min-width:0}
+#view3d .pinfo .keycard{position:static!important; display:flex; width:100%; max-width:none; border:0; border-top:1px solid var(--stage-edge); border-radius:0; background:none; -webkit-backdrop-filter:none; backdrop-filter:none; opacity:1!important; visibility:hidden; transform:none!important; padding:.5625rem .875rem; transition:none}
+#view3d .pinfo.is-open .readouts,#view3d .pinfo.is-open .keycard{visibility:visible; animation:pinfoRow .45s var(--ease) both}
+#view3d .pinfo.is-open .keycard{animation-delay:.08s}
+@keyframes pinfoRow{from{opacity:0; transform:translateY(-.375rem)}}
+@media (max-width: 75rem){ body.present .stagebar .segment__label,body.present .stagebar .btn__text{display:none} body.present .segment--tools .segment__item{width:2.375rem} body.present #exitPresent .btn__text{display:inline} }
+.shift-ico{display:none} #shiftCycle[data-shift="left"] .shift-ico--left,#shiftCycle[data-shift="center"] .shift-ico--center,#shiftCycle[data-shift="right"] .shift-ico--right{display:block}
+body.present #shiftCycle[data-shift]:not([data-shift="center"]){background:var(--input); color:var(--on-accent); box-shadow:0 0 0 .25rem var(--input-wash),0 4px 14px rgb(var(--input-rgb) / .18)}
+body.present .modelinfo,body.present #modelInfo{display:none}
+body.present .stagebar,body.present .pbrand,body.present .pinfo-btn{transition:opacity .45s var(--ease),transform .45s var(--ease)}
+body.present.idle .pbrand,body.present.idle .pinfo-btn{opacity:0; pointer-events:none}
+body.present .stagecap{top:4.75rem}
+/* the toolbar state table: ink at rest, grey wash on hover, blue with a halo when on, Support an ink pill */
+.stagebar .stagebar__actions #support,.stagebar .stagebar__actions #support:hover{background:var(--ink); color:var(--on-ink); box-shadow:0 0 0 .25rem var(--hover-strong),0 4px 14px rgba(0,0,0,.18)}
+.stagebar .stagebar__actions #support:hover{background:var(--ink-1)}
+.stagebar .stagebar__actions #support{border:0; border-radius:.5625rem; height:calc(var(--hit) - .5rem); margin-left:.375rem; font:600 .875rem/1 var(--font)}
+@container bar (max-width: 700px){ #support{width:2.375rem; min-width:2.375rem; padding:0; margin-left:.25rem} }
+#openMore[aria-expanded="true"],#pbMore[aria-expanded="true"]{background:var(--input); color:var(--on-accent); box-shadow:0 0 0 .25rem var(--input-wash),0 4px 14px rgb(var(--input-rgb) / .18)}
+/* foldable groups and cards: a chevron on the eyebrow */
+.fold{cursor:pointer; display:inline-flex; align-items:center; gap:.375rem; -webkit-user-select:none; user-select:none}
+.fold::after{content:""; width:.875rem; height:.875rem; flex:none; background:var(--ink-meta); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M213.66%2C101.66l-80%2C80a8%2C8%2C0%2C0%2C1-11.32%2C0l-80-80A8%2C8%2C0%2C0%2C1%2C53.66%2C90.34L128%2C164.69l74.34-74.35a8%2C8%2C0%2C0%2C1%2C11.32%2C11.32Z%22/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22 fill=%22black%22%3E%3Cpath d=%22M213.66%2C101.66l-80%2C80a8%2C8%2C0%2C0%2C1-11.32%2C0l-80-80A8%2C8%2C0%2C0%2C1%2C53.66%2C90.34L128%2C164.69l74.34-74.35a8%2C8%2C0%2C0%2C1%2C11.32%2C11.32Z%22/%3E%3C/svg%3E") center/contain no-repeat; transition:transform .25s var(--spring), background .15s}
+.fold:hover::after{background:var(--ink-1)}
+.is-folded > .fold::after,.is-folded .fold::after{transform:rotate(-90deg)}
+.group.is-folded > :not(.group__head){display:none}
+#aboutCard.is-folded :is(.stats,#abText,.notice,#abNote,.about__side){display:none}
+.fold:focus-visible{outline:2px solid var(--input); outline-offset:3px; border-radius:.25rem}
+
 /* ---- clean and minimal: one overflow menu, a short playbar, a collapsible caption, controls that hide ---- */
 .morewrap{position:relative; display:inline-flex}
 .morepop{position:absolute; right:0; top:calc(100% + .5rem); z-index:70; min-width:13.5rem; padding:.375rem; display:flex; flex-direction:column; gap:.125rem; border-radius:var(--r-lg,1rem); background:var(--panel); border:1px solid var(--edge); box-shadow:var(--shadow-overlay); animation:rise .25s var(--spring) both}
@@ -1164,7 +1204,6 @@ body.embed .splash{display:none!important}
 .mrow[aria-pressed="true"]{background:var(--input-wash); color:var(--input-ink)} .mrow[aria-pressed="true"] svg{color:var(--input)}
 .mrow--support{color:var(--input-ink)} .mrow--support svg{color:var(--input)}
 .mrow:focus-visible{outline:2px solid var(--input); outline-offset:-2px}
-#pbMore[aria-expanded="true"],#openMore[aria-expanded="true"]{background:var(--ink-1); color:var(--on-ink)}
 .pbar{width:min(34rem,calc(100% - 9rem))}
 body.present .pbar{width:min(40rem,calc(100% - 4rem))}
 body.present.ctl-open .pbar{width:min(40rem,calc(100vw - 30rem))}
@@ -1231,6 +1270,7 @@ body.present .stagecap{pointer-events:auto}
             <button class="btn btn--glass normal-only" id="present" title="Present full screen (P)"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176ZM104,120v24a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm32-16v40a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32-16v56a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z"/></svg><span class="btn__text">Present</span></button>
             <button class="btn btn--glass embed-hide" id="openLearn" aria-expanded="false" title="Video lessons"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M251.76,88.94l-120-64a8,8,0,0,0-7.52,0l-120,64a8,8,0,0,0,0,14.12L32,117.87v48.42a15.91,15.91,0,0,0,4.06,10.65C49.16,191.53,78.51,216,128,216a130,130,0,0,0,48-8.76V240a8,8,0,0,0,16,0V199.51a115.63,115.63,0,0,0,27.94-22.57A15.91,15.91,0,0,0,224,166.29V117.87l27.76-14.81a8,8,0,0,0,0-14.12ZM128,200c-43.27,0-68.72-21.14-80-33.71V126.4l76.24,40.66a8,8,0,0,0,7.52,0L176,143.47v46.34C163.4,195.69,147.52,200,128,200Zm80-33.75a97.83,97.83,0,0,1-16,14.25V134.93l16-8.53ZM188,118.94l-.22-.13-56-29.87a8,8,0,0,0-7.52,14.12L171,128l-43,22.93L25,96,128,41.07,231,96Z"/></svg><span class="btn__text">Learn</span></button>
             <button class="btn btn--glass normal-only" id="openMap" title="See where these features are on Earth, with satellite imagery"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm88,104a87.62,87.62,0,0,1-6.4,32.94l-44.7-27.49a15.92,15.92,0,0,0-6.24-2.23l-22.82-3.08a16.11,16.11,0,0,0-16,7.86h-8.72l-3.8-7.86a15.91,15.91,0,0,0-11-8.67l-8-1.73L96.14,104h16.71a16.06,16.06,0,0,0,7.73-2l12.25-6.76a16.62,16.62,0,0,0,3-2.14l26.91-24.34A15.93,15.93,0,0,0,166,49.1l-.36-.65A88.11,88.11,0,0,1,216,128ZM143.31,41.34,152,56.9,125.09,81.24,112.85,88H96.14a16,16,0,0,0-13.88,8l-8.73,15.23L63.38,84.19,74.32,58.32a87.87,87.87,0,0,1,69-17ZM40,128a87.53,87.53,0,0,1,8.54-37.8l11.34,30.27a16,16,0,0,0,11.62,10l21.43,4.61L96.74,143a16.09,16.09,0,0,0,14.4,9h1.48l-7.23,16.23a16,16,0,0,0,2.86,17.37l.14.14L128,205.94l-1.94,10A88.11,88.11,0,0,1,40,128Zm102.58,86.78,1.13-5.81a16.09,16.09,0,0,0-4-13.9,1.85,1.85,0,0,1-.14-.14L120,174.74,133.7,144l22.82,3.08,45.72,28.12A88.18,88.18,0,0,1,142.58,214.78Z"/></svg><span class="btn__text">Map</span></button>
+            <span class="segment__sep normal-only" aria-hidden="true"></span>
             <div class="morewrap normal-only">
               <button class="btn btn--glass btn--icon" id="openMore" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="morePop" aria-label="More" title="More: worksheet, downloads, share, hide the interface"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,128a12,12,0,1,1-12-12A12,12,0,0,1,140,128Zm56-12a12,12,0,1,0,12,12A12,12,0,0,0,196,116ZM60,116a12,12,0,1,0,12,12A12,12,0,0,0,60,116Z"/></svg></button>
               <div class="morepop" id="morePop" role="menu" hidden>
@@ -1238,11 +1278,13 @@ body.present .stagecap{pointer-events:auto}
                 <button class="mrow" id="openExport" role="menuitem" type="button" aria-expanded="false" aria-controls="exportPop" title="Download 3D files (STL, USDZ) or a picture"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M223.68,66.15,135.68,18h0a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32h0l80.34,44L128,120,47.66,76ZM40,90l80,43.78v85.79L40,175.82Zm96,129.57V133.82L216,90v85.78Z"/></svg><span>Download 3D</span></button>
                 <button class="mrow" id="openShare" role="menuitem" type="button" aria-expanded="false" aria-controls="sharePop" title="Share or embed this view"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M176,160a39.89,39.89,0,0,0-28.62,12.09l-46.1-29.63a39.8,39.8,0,0,0,0-28.92l46.1-29.63a40,40,0,1,0-8.66-13.45l-46.1,29.63a40,40,0,1,0,0,55.82l46.1,29.63A40,40,0,1,0,176,160Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/></svg><span>Share or embed</span></button>
                 <button class="mrow" id="hideUi" role="menuitem" type="button" title="Hide all the controls for a clean view (H)"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z"/></svg><span>Hide controls</span><kbd>H</kbd></button>
-                <button class="mrow mrow--support" id="support" role="menuitem" type="button" aria-haspopup="dialog" aria-controls="supOverlay" title="Support my work"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"/></svg><span>Support my work</span></button>
               </div>
             </div>
             <button class="btn btn--glass btn--icon" id="toggleControls" aria-label="Controls" aria-expanded="false" aria-controls="controls" title="Settings and controls (C)"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"/></svg></button>
+            <span class="segment__sep normal-only" aria-hidden="true"></span>
+            <button class="btn btn--support normal-only" id="support" type="button" title="Support my work" aria-haspopup="dialog" aria-controls="supOverlay"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"/></svg><span class="btn__text">Support</span></button>
             <a class="btn btn--glass embed-only" id="openFull" href="/" target="_blank" rel="noopener"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg><span class="btn__text">Open in Tectonics</span></a>
+            <button class="btn btn--glass present-only" id="shiftCycle" type="button" data-shift="center" title="Stage position: centred (click to move it aside, ⇧← ⇧→)"><svg class="shift-ico shift-ico--left" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A24,24,0,0,0,24,56V200a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V56A24,24,0,0,0,208,32Zm8,168a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Z"/><rect x="56" y="76" width="64" height="104" rx="10"/></svg><svg class="shift-ico shift-ico--center" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A24,24,0,0,0,24,56V200a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V56A24,24,0,0,0,208,32Zm8,168a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Z"/><rect x="96" y="76" width="64" height="104" rx="10"/></svg><svg class="shift-ico shift-ico--right" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A24,24,0,0,0,24,56V200a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V56A24,24,0,0,0,208,32Zm8,168a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Z"/><rect x="136" y="76" width="64" height="104" rx="10"/></svg></button>
             <button class="btn btn--glass present-only" id="exitPresent" title="Exit present (Esc)"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M144,104V64a8,8,0,0,1,16,0V84.69l42.34-42.35a8,8,0,0,1,11.32,11.32L171.31,96H192a8,8,0,0,1,0,16H152A8,8,0,0,1,144,104Zm-40,40H64a8,8,0,0,0,0,16H84.69L42.34,202.34a8,8,0,0,0,11.32,11.32L96,171.31V192a8,8,0,0,0,16,0V152A8,8,0,0,0,104,144Zm67.31,16H192a8,8,0,0,0,0-16H152a8,8,0,0,0-8,8v40a8,8,0,0,0,16,0V171.31l42.34,42.35a8,8,0,0,0,11.32-11.32ZM104,56a8,8,0,0,0-8,8V84.69L53.66,42.34A8,8,0,0,0,42.34,53.66L84.69,96H64a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V64A8,8,0,0,0,104,56Z"/></svg><span class="btn__text">Exit</span></button>
           </div>
         </div>
@@ -1326,6 +1368,9 @@ body.present .stagecap{pointer-events:auto}
               <button class="mrow" id="pbResetAll" role="menuitem" type="button" title="Reset time, camera angle, slice and zoom"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L44.59,96H72a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V56a8,8,0,0,1,16,0V85.8L60.25,60A96,96,0,0,1,224,128Z"/></svg><span>Reset everything</span></button>
             </div>
           </div>
+          <span class="pbrand present-only"><span class="brand__mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(.75 -.85)"><path class="ring r1" stroke-width="2" d="M3.5 5.5H9.2C12.3 5.5 13.8 7.5 15.4 10.2L19 16.4"/><path class="ring r2" stroke-width="2" stroke-opacity=".7" d="M3.5 10.1H7.2C9.9 10.1 11.1 11.7 12.4 14L14.6 17.9"/><path class="ring r3" stroke-width="2" stroke-opacity=".42" d="M3.5 14.7H5.2C6.9 14.7 7.8 15.9 8.7 17.5L10.2 20.2"/><circle class="ring r4" cx="10.7" cy="8.7" r="1" fill="currentColor" stroke="none"/></g></svg></span><span class="brand__word">tectonics</span></span>
+          <button class="pinfo-btn present-only" id="presentInfo" type="button" aria-expanded="true" aria-controls="pinfo" title="Time, speed and what the colours are"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></svg></button>
+          <div class="pinfo present-only is-open" id="pinfo" aria-label="Time, speed and colour key"></div>
           <button class="showui" id="showUi" type="button" aria-label="Show the controls" title="Show the controls (H)"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg></button>
           <button class="map-info map-info--left" id="modelInfo" type="button" aria-expanded="false" aria-controls="readouts keycard" title="Time, speed, quakes and what the colours are"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></svg></button>
         </div>
@@ -2368,7 +2413,7 @@ function buildBlock() {
 function groundU() { GROUND_U.uMode.value = S.scn === 'transform' ? 2 : 0; GROUND_U.uGrid.value = S.show.grid ? 1 : 0; GROUND_U.uStripes.value = S.show.stripes ? 1 : 0; GROUND_U.uDark.value = T.dark ? 1 : 0; }
 
 // ---- camera ----
-const cam = { az: .58, el: .42, r: 16, tx: 0, ty: -.9, tz: 0 }, camT = Object.assign({}, cam), camVel = { az: 0, el: 0 };
+const cam = { az: .58, el: .42, r: 16, tx: 0, ty: -.9, tz: 0, sx: 0 }, camT = Object.assign({}, cam), camVel = { az: 0, el: 0 };
 const VIEWS = { oblique: { az: .58, el: .42 }, front: { az: 0, el: .05 }, side: { az: 1.45, el: .1 }, top: { az: 0, el: 1.45 } };
 const VIEW_ORDER = ['oblique', 'front', 'side', 'top'];
 let vw = 800, vh = 600;
@@ -2382,8 +2427,8 @@ function applyCamera() {
   const cp = Math.cos(cam.el);
   camera.position.set(cam.tx + cam.r * Math.sin(cam.az) * cp, cam.ty + cam.r * Math.sin(cam.el), cam.tz + cam.r * Math.cos(cam.az) * cp);
   camera.lookAt(cam.tx, cam.ty, cam.tz);
-  const shift = presentOn() ? 0 : Math.min(vh * .05, 36);
-  if (shift > .5) camera.setViewOffset(vw, vh, 0, shift, vw, vh); else if (camera.view) { camera.clearViewOffset(); }
+  const shift = presentOn() ? 0 : Math.min(vh * .05, 36), sx = presentOn() ? -cam.sx * vw : 0;
+  if (shift > .5 || Math.abs(sx) > .5) camera.setViewOffset(vw, vh, sx, shift, vw, vh); else if (camera.view) { camera.clearViewOffset(); }
 }
 function sizeView() {
   if (!HAS3D) return;
@@ -2992,8 +3037,8 @@ function step(now) {
   if (S.spin && !drag) { camT.az += dt * .14; }
   if (Math.abs(camVel.az) + Math.abs(camVel.el) > .0005 && !drag) { camT.az += camVel.az * dt; camT.el = clamp(camT.el + camVel.el * dt, .02, 1.5); const dec = Math.exp(-dt * 4.2); camVel.az *= dec; camVel.el *= dec; }
   const k = REDUCED ? 1 : 1 - Math.exp(-dt * 11);
-  const moved = Math.abs(camT.az - cam.az) + Math.abs(camT.el - cam.el) + Math.abs(camT.r - cam.r) + Math.abs(camT.tx - cam.tx) + Math.abs(camT.ty - cam.ty) + Math.abs(camT.tz - cam.tz);
-  if (moved > 1e-4) { cam.az += (camT.az - cam.az) * k; cam.el += (camT.el - cam.el) * k; cam.r += (camT.r - cam.r) * k; cam.tx += (camT.tx - cam.tx) * k; cam.ty += (camT.ty - cam.ty) * k; cam.tz += (camT.tz - cam.tz) * k; needsRender = true; if (moved < 2e-3) Object.assign(cam, camT); }
+  const moved = Math.abs(camT.az - cam.az) + Math.abs(camT.el - cam.el) + Math.abs(camT.r - cam.r) + Math.abs(camT.tx - cam.tx) + Math.abs(camT.ty - cam.ty) + Math.abs(camT.tz - cam.tz) + Math.abs(camT.sx - cam.sx);
+  if (moved > 1e-4) { cam.az += (camT.az - cam.az) * k; cam.el += (camT.el - cam.el) * k; cam.r += (camT.r - cam.r) * k; cam.tx += (camT.tx - cam.tx) * k; cam.ty += (camT.ty - cam.ty) * k; cam.tz += (camT.tz - cam.tz) * k; cam.sx += (camT.sx - cam.sx) * k; needsRender = true; if (moved < 2e-3) Object.assign(cam, camT); }
   if (S.spin) needsRender = true;
   if (dirty || geoDirty) { geoDirty = false; applyModel(); }
   else if (wallVisKey !== visKey()) applyModel();
@@ -3470,9 +3515,29 @@ $('#playerTry').addEventListener('click', () => { if (playerIdx >= 0) runLesson(
 }
 
 // ---------------- present ----------------
+// while presenting, the readouts and the colour key share one card under the "i"; they go home on exit
+let pinfoHome = null;
+function dockPresentInfo(on) {
+  const ro = $('#readouts'), key = $('#keycard');
+  if (on && !pinfoHome) { pinfoHome = [[ro, ro.parentNode, ro.nextSibling], [key, key.parentNode, key.nextSibling]]; $('#pinfo').append(ro, key); }
+  else if (!on && pinfoHome) { for (const [el, parent, next] of pinfoHome) parent.insertBefore(el, next); pinfoHome = null; }
+}
+function setPresentInfo(open) { $('#pinfo').classList.toggle('is-open', open); $('#presentInfo').setAttribute('aria-expanded', open); store.set('pinfo', open ? '1' : '0'); }
+$('#presentInfo').addEventListener('click', e => { e.stopPropagation(); setPresentInfo($('#presentInfo').getAttribute('aria-expanded') !== 'true'); });
+// stage position: centre, or slide the block aside so a floating card can sit beside it on a classroom display
+let stageShift = 'center';
+function setShift(v, say) {
+  stageShift = v; const on = presentOn();
+  for (const k of ['left', 'right']) document.body.classList.toggle('shift-' + k, on && v === k);
+  camT.sx = on ? (v === 'left' ? -.11 : v === 'right' ? .11 : 0) : 0; if (REDUCED) cam.sx = camT.sx; needsRender = true;
+  const sc = $('#shiftCycle'); sc.dataset.shift = v; sc.title = v === 'center' ? tr('Stage position: centred (click to move it aside, ⇧← ⇧→)') : v === 'left' ? tr('Stage on the left (click for right)') : tr('Stage on the right (click for centre)');
+  if (say) toast(v === 'center' ? 'Stage centred' : 'Stage to the ' + v);
+}
+$('#shiftCycle').addEventListener('click', () => { const order = ['center', 'left', 'right']; setShift(order[(order.indexOf(stageShift) + 1) % 3], true); });
 function setPresent(on) {
   if (EMBED || on === presentOn()) return;
-  document.body.classList.toggle('present', on); closePops(); setControls(false);
+  document.body.classList.toggle('present', on); closePops(); setControls(false); dockPresentInfo(on); setShift(stageShift);
+  if (on) setPresentInfo(store.get('pinfo', '1') !== '0');
   if (on) { try { if (document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} }
   else if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (e) {} }
   setTimeout(() => { sizeView(); setView(S.view, true); }, 60);
@@ -3501,6 +3566,7 @@ addEventListener('keydown', e => {
     return;
   }
   if (k === ' ' && tag !== 'button') { e.preventDefault(); setPlaying(!S.playing); return; }
+  if (presentOn() && e.shiftKey && (k === 'ArrowRight' || k === 'ArrowLeft')) { const o = ['left', 'center', 'right'], i = o.indexOf(stageShift); setShift(o[Math.max(0, Math.min(2, i + (k === 'ArrowRight' ? 1 : -1)))], true); e.preventDefault(); return; }
   if (k === 'ArrowRight' || k === 'ArrowLeft') { if (tag === 'input') return; const t0 = S.t; setPlaying(false); seek(S.t + (k === 'ArrowRight' ? 1 : -1) * (e.shiftKey ? .1 : .02)); if (k === 'ArrowRight') crossQuakes(t0, S.t); e.preventDefault(); return; }
   if (k === '1' || k === '2' || k === '3' || k === '4' || k === '5') { setScenario(SCN[+k - 1]); return; }
   const l = k.toLowerCase();
@@ -3517,6 +3583,16 @@ addEventListener('keydown', e => {
   else if (l === 'p') setPresent(!presentOn());
   else if (k === '?') { setKeys($('#keys').hidden); if (!$('#keys').hidden) { if (document.body.classList.contains('ctl-open')) anchorKeys(); else { const kk = $('#keys'); if (innerWidth > 768) { kk.style.left = '50%'; kk.style.top = '5rem'; kk.style.marginLeft = '-8.5rem'; } } } }
 });
+
+// ---------------- foldable groups: a chevron on the eyebrow, remembered ----------------
+{ let saved = {}; try { saved = JSON.parse(store.get('folds', '{}')); } catch (e) {}
+  const save = () => store.set('folds', JSON.stringify(saved));
+  const wire = (host, eyebrow, key) => { if (!eyebrow || eyebrow.dataset.fold) return; eyebrow.dataset.fold = '1'; eyebrow.classList.add('fold'); eyebrow.setAttribute('role', 'button'); eyebrow.tabIndex = 0;
+    const set = f => { host.classList.toggle('is-folded', f); eyebrow.setAttribute('aria-expanded', !f); };
+    const tog = () => { const f = !host.classList.contains('is-folded'); set(f); saved[key] = f ? 1 : 0; save(); needsRender = true; };
+    set(!!saved[key]); eyebrow.addEventListener('click', tog); eyebrow.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tog(); } }); };
+  for (const g of $$('#controls .group')) { const e = g.querySelector('.group__head .t-eyebrow'); if (e) wire(g, e, 'g:' + e.textContent.trim()); }
+  wire($('#aboutCard'), $('#abEyebrow'), 'about'); }
 
 // ---------------- language ----------------
 for (const b of $$('#langSeg [data-lang]')) { const on = b.dataset.lang === LANG; b.classList.toggle('segment__item--on', on); b.setAttribute('aria-pressed', on); b.addEventListener('click', () => { if (b.dataset.lang !== LANG) { store.set('lang', b.dataset.lang); saveState(); location.reload(); } }); }
